@@ -17,7 +17,9 @@ export default async function IndexPage({
     <main className="flex flex-1 flex-col p-4 md:p-6">
       <div className="flex items-center justify-between mb-8">
         <h1 className="font-semibold text-lg md:text-2xl">Assistants</h1>
-        <AddAssistantDialog />
+        <div className="ml-auto">
+          <AddAssistantDialog />
+        </div>
       </div>
       <div className="w-full mb-4">
         <Search value={searchParams.q} />

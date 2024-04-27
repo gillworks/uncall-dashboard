@@ -2,7 +2,7 @@ import './globals.css';
 
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
-import { Logo, PhoneOutgoingIcon, SettingsIcon, UsersIcon, TaskIcon } from '@/components/icons';
+import { Logo, PhoneOutgoingIcon, SettingsIcon, UsersIcon, TaskIcon, TimelineChartIcon } from '@/components/icons';
 import { User } from './user';
 import { ModeToggle } from '@/components/theme/mode-toggle';
 import { NavItem } from './nav-item';
@@ -44,10 +44,14 @@ export default function RootLayout({
                 <div className="flex-1 overflow-auto py-2">
                   <nav className="grid items-start px-4 text-sm font-medium">
                     <NavItem href="/">
+                      <TimelineChartIcon className="h-4 w-4" />
+                      Dashboard
+                    </NavItem>
+                    <NavItem href="/assistants">
                       <UsersIcon className="h-4 w-4" />
                       Assistants
                     </NavItem>
-                    <NavItem href="/outbound">
+                    <NavItem href="/tasks">
                       <TaskIcon className="h-4 w-4" />
                       Tasks
                     </NavItem>

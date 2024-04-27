@@ -2,9 +2,12 @@ import './globals.css';
 
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
-import { Logo, SettingsIcon, UsersIcon, VercelLogo } from '@/components/icons';
+import { Logo, PhoneOutgoingIcon, SettingsIcon, UsersIcon, TaskIcon } from '@/components/icons';
 import { User } from './user';
+import { ModeToggle } from '@/components/theme/mode-toggle';
 import { NavItem } from './nav-item';
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { Badge } from '@/components/ui/badge';
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
@@ -20,50 +23,65 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full bg-gray-50">
       <body>
-        <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-          <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
-            <div className="flex h-full max-h-screen flex-col gap-2">
-              <div className="flex h-[60px] items-center border-b px-5">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
+            <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
+              <div className="flex h-full max-h-screen flex-col gap-2">
+                <div className="flex h-[60px] items-center border-b px-5">
+                  <Link
+                    className="flex items-center gap-2 font-semibold"
+                    href="/"
+                  >
+                    <Logo />
+                    <span className="">Uncall</span>
+                  </Link>
+                </div>
+                <div className="flex-1 overflow-auto py-2">
+                  <nav className="grid items-start px-4 text-sm font-medium">
+                    <NavItem href="/">
+                      <UsersIcon className="h-4 w-4" />
+                      Assistants
+                    </NavItem>
+                    <NavItem href="/outbound">
+                      <TaskIcon className="h-4 w-4" />
+                      Tasks
+                    </NavItem>
+                    <NavItem href="/mail">
+                      <PhoneOutgoingIcon className="h-4 w-4" />
+                      <span className="flex justify-between w-full">
+                        Calls
+                        <Badge className="ml-1" variant="default">3</Badge>
+                      </span>
+                    </NavItem>
+                    <NavItem href="/settings">
+                      <SettingsIcon className="h-4 w-4" />
+                      Settings
+                    </NavItem>
+                  </nav>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 justify-between lg:justify-end">
                 <Link
-                  className="flex items-center gap-2 font-semibold"
+                  className="flex items-center gap-2 font-semibold lg:hidden"
                   href="/"
                 >
                   <Logo />
                   <span className="">ACME</span>
                 </Link>
-              </div>
-              <div className="flex-1 overflow-auto py-2">
-                <nav className="grid items-start px-4 text-sm font-medium">
-                  <NavItem href="/">
-                    <UsersIcon className="h-4 w-4" />
-                    Users
-                  </NavItem>
-                  <NavItem href="/settings">
-                    <SettingsIcon className="h-4 w-4" />
-                    Settings
-                  </NavItem>
-                  <NavItem href="https://vercel.com/templates/next.js/admin-dashboard-tailwind-postgres-react-nextjs">
-                    <VercelLogo className="h-4 w-4" />
-                    Deploy
-                  </NavItem>
-                </nav>
-              </div>
+                <User />
+                <ModeToggle />
+              </header>
+              {children}
             </div>
           </div>
-          <div className="flex flex-col">
-            <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 justify-between lg:justify-end">
-              <Link
-                className="flex items-center gap-2 font-semibold lg:hidden"
-                href="/"
-              >
-                <Logo />
-                <span className="">ACME</span>
-              </Link>
-              <User />
-            </header>
-            {children}
-          </div>
-        </div>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

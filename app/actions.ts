@@ -8,3 +8,9 @@ export async function deleteUser(userId: number) {
   // await deleteUserById(userId);
   // revalidatePath('/');
 }
+
+export async function deleteAssistant(assistantId: number) {
+  // Uncomment this to enable deletion
+  // await deleteUserById(userId);
+  // revalidatePath('/');
+}

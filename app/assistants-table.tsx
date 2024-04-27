@@ -65,7 +65,9 @@ function AssistantRow({ assistant }: { assistant: SelectAssistant }) {
   return (
     <TableRow>
       <TableCell className="font-medium">{assistant.name}</TableCell>
-      <TableCell className="hidden md:table-cell">{JSON.stringify(assistant.model)}</TableCell>
+      <TableCell className="hidden md:table-cell">
+        {JSON.stringify(assistant.model)}
+      </TableCell>
       <TableCell>{JSON.stringify(assistant.voice)}</TableCell>
       <TableCell>
         <Button

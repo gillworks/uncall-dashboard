@@ -12,99 +12,152 @@ import {
   DialogTrigger,
   DialogClose
 } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
+import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  name: z.string().max(255),
-  model: z.string().optional(), // Assuming JSON stringified data
-  voice: z.string().optional() // Assuming JSON stringified data
+  name: z.string().max(255).min(2),
+  model: z.string().optional(),
+  voice: z.string().optional()
 });
 
 export function AddAssistantDialog() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset
-  } = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema)
+  const [isOpen, setIsOpen] = useState(false);
+
+  // 1. Define your form.
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      model: '',
+      voice: ''
+    }
   });
 
-  const onSubmit = (data: { name: string; model?: string; voice?: string }) => {
-    console.log(data); // For debugging
-    reset(); // Reset form fields after submission
-  };
+  // 2. Define a submit handler.
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    fetch('/api/add-assistant', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: values.name,
+        model: values.model
+          ? JSON.stringify({ modelData: values.model })
+          : null,
+        voice: values.voice ? JSON.stringify({ voiceData: values.voice }) : null
+      })
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        toast({
+          description: 'Assistant created successfully!'
+        });
+        form.reset();
+        setIsOpen(false);
+      })
+      .catch((error) => {
+        toast({
+          description: 'Failed to create assistant.'
+        });
+      });
+  }
 
   const { toast } = useToast();
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
           <UserRoundPlus className="mr-2 h-4 w-4" /> Add Assistant
         </Button>
       </DialogTrigger>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Create a new assistant</DialogTitle>
-            <DialogDescription>
-              Fill in the details of the new assistant and click save when
-              you're done.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input id="name" {...register('name')} className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="model" className="text-right">
-                Model (JSON)
-              </Label>
-              <Textarea
-                id="model"
-                {...register('model')}
-                className="col-span-3"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Create a new assistant</DialogTitle>
+              <DialogDescription>
+                Fill in the details of the new assistant and click save when
+                you're done.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="col-span-3" />
+                    </FormControl>
+                    <FormDescription>
+                      This is your assistant's display name.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="model"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Model</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} className="col-span-3" />
+                    </FormControl>
+                    <FormDescription>
+                      JSON data for the assistant's model.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="voice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Voice</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} className="col-span-3" />
+                    </FormControl>
+                    <FormDescription>
+                      JSON data for the assistant's voice configuration.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="voice" className="text-right">
-                Voice (JSON)
-              </Label>
-              <Textarea
-                id="voice"
-                {...register('voice')}
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <DialogFooter className="flex justify-between">
-            <DialogClose asChild>
-              <Button variant="ghost">Cancel</Button>
-            </DialogClose>
-            <Button
-              type="submit"
-              onClick={() => {
-                toast({
-                  description: 'Assistant added successfully!'
-                });
-              }}
-            >
-              Save changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </form>
+            <DialogFooter className="flex justify-between">
+              <DialogClose asChild>
+                <Button variant="ghost">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Create assistant</Button>
+            </DialogFooter>
+          </DialogContent>
+        </form>
+      </Form>
     </Dialog>
   );
 }

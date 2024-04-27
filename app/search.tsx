@@ -40,7 +40,7 @@ export function Search(props: { value?: string }) {
         }}
         spellCheck={false}
         className="w-full shadow-none appearance-none pl-8"
-        placeholder="Search users..."
+        placeholder="Search..."
       />
       {isPending && <Spinner />}
     </div>

@@ -39,7 +39,7 @@ export function Search(props: { value?: string }) {
           setValue(e.currentTarget.value);
         }}
         spellCheck={false}
-        className="w-full bg-white shadow-none appearance-none pl-8"
+        className="w-full shadow-none appearance-none pl-8"
         placeholder="Search users..."
       />
       {isPending && <Spinner />}

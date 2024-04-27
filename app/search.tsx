@@ -13,7 +13,7 @@ export function Search(props: { value?: string }) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    console.log('value', value);
+    //console.log('value', value);
     if (value === undefined) {
       return;
     } else if (value) {

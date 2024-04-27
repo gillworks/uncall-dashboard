@@ -2,12 +2,20 @@ import './globals.css';
 
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
-import { Logo, PhoneOutgoingIcon, SettingsIcon, UsersIcon, TaskIcon, TimelineChartIcon } from '@/components/icons';
+import {
+  Logo,
+  PhoneOutgoingIcon,
+  SettingsIcon,
+  UsersIcon,
+  TaskIcon,
+  TimelineChartIcon
+} from '@/components/icons';
 import { User } from './user';
 import { ModeToggle } from '@/components/theme/mode-toggle';
 import { NavItem } from './nav-item';
-import { ThemeProvider } from "@/components/theme/theme-provider";
+import { ThemeProvider } from '@/components/theme/theme-provider';
 import { Badge } from '@/components/ui/badge';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
@@ -59,7 +67,9 @@ export default function RootLayout({
                       <PhoneOutgoingIcon className="h-4 w-4" />
                       <span className="flex justify-between w-full">
                         Calls
-                        <Badge className="ml-1" variant="default">3</Badge>
+                        <Badge className="ml-1" variant="default">
+                          3
+                        </Badge>
                       </span>
                     </NavItem>
                     <NavItem href="/settings">
@@ -86,6 +96,7 @@ export default function RootLayout({
             </div>
           </div>
         </ThemeProvider>
+        <Toaster />
         <Analytics />
       </body>
     </html>

@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -40,6 +41,8 @@ export function AddAssistantDialog() {
     console.log(data); // For debugging
     reset(); // Reset form fields after submission
   };
+
+  const { toast } = useToast();
 
   return (
     <Dialog>
@@ -89,7 +92,16 @@ export function AddAssistantDialog() {
             <DialogClose asChild>
               <Button variant="ghost">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save changes</Button>
+            <Button
+              type="submit"
+              onClick={() => {
+                toast({
+                  description: 'Assistant added successfully!'
+                });
+              }}
+            >
+              Save changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </form>

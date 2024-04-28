@@ -41,9 +41,17 @@ import { z } from 'zod';
 
 const formSchema = z.object({
   name: z.string().max(255).min(2),
-  instructions: z.string(),
-  type: z.string().optional(),
-  assistant: z.string().optional()
+  instructions: z.string().min(1),
+  type: z
+    .string({
+      required_error: 'Please select a task type.'
+    })
+    .min(1),
+  assistant: z
+    .string({
+      required_error: 'Please select an assistant to perform the task.'
+    })
+    .min(1)
 });
 
 interface Assistant {
@@ -75,6 +83,11 @@ export function AddTaskDialog() {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
+    // Find the assistant ID corresponding to the selected assistant name
+    const assistantId = assistants.find(
+      (assistant) => assistant.name === values.assistant
+    )?.id;
+
     fetch('/api/add-task', {
       method: 'POST',
       headers: {
@@ -84,7 +97,7 @@ export function AddTaskDialog() {
         name: values.name,
         instructions: values.instructions,
         type: values.type,
-        assistant: values.assistant
+        assistant: assistantId // Pass the assistantId instead of the assistant name
       })
     })
       .then((response) => response.json())

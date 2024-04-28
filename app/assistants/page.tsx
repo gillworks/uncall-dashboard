@@ -1,6 +1,6 @@
 import { getUsers, getAssistants } from '@/lib/db';
 import { UsersTable } from '../users-table';
-import { AssistantsTable } from '../assistants-table';
+import { AssistantsTable } from './assistants-table';
 import { Search } from '../search';
 import { AddAssistantDialog } from '@/components/assistants/AddAssistantDialog';
 

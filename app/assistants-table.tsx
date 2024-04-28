@@ -12,19 +12,21 @@ import { Button } from '@/components/ui/button';
 import { SelectAssistant } from '@/lib/db';
 import { deleteAssistant } from './actions';
 import { useRouter } from 'next/navigation';
+import useSWR from 'swr';
 
-export function AssistantsTable({
-  assistants,
-  offset
-}: {
-  assistants: SelectAssistant[];
-  offset: number | null;
-}) {
-  const router = useRouter();
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data); // Log to see the structure
+      return data;
+    });
 
-  function onClick() {
-    router.replace(`/?offset=${offset}`);
-  }
+export function AssistantsTable({ offset }: { offset: number | null }) {
+  const { data: assistants, error } = useSWR(`/api/assistants`, fetcher);
+
+  if (error) return <div>Failed to load</div>;
+  if (!assistants || !Array.isArray(assistants)) return <div>Loading...</div>;
 
   return (
     <>
@@ -39,21 +41,12 @@ export function AssistantsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {assistants.map((assistant) => (
+            {assistants.map((assistant: SelectAssistant) => (
               <AssistantRow key={assistant.id} assistant={assistant} />
             ))}
           </TableBody>
         </Table>
       </form>
-      {offset !== null && (
-        <Button
-          className="mt-4 w-40"
-          variant="secondary"
-          onClick={() => onClick()}
-        >
-          Next Page
-        </Button>
-      )}
     </>
   );
 }

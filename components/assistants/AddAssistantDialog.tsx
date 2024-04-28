@@ -26,6 +26,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
+import { mutate } from 'swr';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -72,8 +73,10 @@ export function AddAssistantDialog() {
         });
         form.reset();
         setIsOpen(false);
+        mutate('/api/assistants', true); // Ensure this matches the SWR key in the AssistantsTable
       })
       .catch((error) => {
+        console.error('Failed to create assistant:', error);
         toast({
           description: 'Failed to create assistant.'
         });

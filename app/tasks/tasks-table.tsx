@@ -81,50 +81,56 @@ export function TasksTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tasks.map((task: Task) => (
-              <TableRow key={task.id}>
-                <TableCell className="font-medium">{task.name}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      task.status === 'active'
-                        ? 'default'
-                        : task.status === 'in progress'
-                          ? 'secondary'
-                          : 'outline'
-                    }
-                  >
-                    {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {task.type}
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {task.assistants.name}
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {formatDistanceToNow(new Date(task.createdAt), {
-                    addSuffix: true
-                  })}
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+            {Array.isArray(tasks) &&
+              tasks.map((task: Task) => (
+                <TableRow key={task.id}>
+                  <TableCell className="font-medium">{task.name}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        task.status === 'active'
+                          ? 'default'
+                          : task.status === 'in progress'
+                            ? 'secondary'
+                            : 'outline'
+                      }
+                    >
+                      {task.status.charAt(0).toUpperCase() +
+                        task.status.slice(1)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {task.type}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {task.assistants.name}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {formatDistanceToNow(new Date(task.createdAt), {
+                      addSuffix: true
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          aria-haspopup="true"
+                          size="icon"
+                          variant="ghost"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </CardContent>

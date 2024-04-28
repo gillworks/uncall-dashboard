@@ -29,5 +29,6 @@ model tasks {
   name         String
   instructions String
   assistantId  Int?
+  status       String      @default("draft")
   assistants   assistants? @relation(fields: [assistantId], references: [id], onUpdate: NoAction)
 }

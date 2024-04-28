@@ -194,8 +194,10 @@ export function AddTaskDialog() {
                     <FormLabel>Assistant</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        setSelectedAssistantId(value);
-                        form.setValue('assistant', value); // Ensures the form state updates too
+                        console.log(
+                          'Assistant Name:',
+                          assistants.find((a) => a.id === value)?.name
+                        );
                       }}
                       value={selectedAssistantId} // Set the current value
                     >

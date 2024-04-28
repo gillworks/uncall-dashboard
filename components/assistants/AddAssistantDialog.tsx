@@ -34,6 +34,8 @@ import { z } from 'zod';
 
 const formSchema = z.object({
   name: z.string().max(255).min(2),
+  identity: z.string(),
+  style: z.string(),
   model: z.string().optional(),
   voice: z.string().optional()
 });
@@ -46,6 +48,8 @@ export function AddAssistantDialog() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      identity: '',
+      style: '',
       model: '',
       voice: ''
     }
@@ -60,6 +64,8 @@ export function AddAssistantDialog() {
       },
       body: JSON.stringify({
         name: values.name,
+        identity: values.identity,
+        style: values.style,
         model: values.model
           ? JSON.stringify({ modelData: values.model })
           : null,
@@ -114,6 +120,38 @@ export function AddAssistantDialog() {
                     </FormControl>
                     <FormDescription>
                       This is your assistant's display name.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="identity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Identity</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="col-span-3" />
+                    </FormControl>
+                    <FormDescription>
+                      This is your assistant's identity.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="style"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Style</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} className="col-span-3" />
+                    </FormControl>
+                    <FormDescription>
+                      What is this assistant's style?
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

@@ -9,10 +9,12 @@ export default async function handler(
 ) {
   if (req.method === 'POST') {
     try {
-      const { name, model, voice } = req.body;
+      const { name, identity, style, model, voice } = req.body;
       const assistant = await prisma.assistants.create({
         data: {
           name,
+          identity,
+          style,
           model: model ? JSON.parse(model) : null,
           voice: voice ? JSON.parse(voice) : null
         }

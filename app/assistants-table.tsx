@@ -18,7 +18,7 @@ const fetcher = (url: string) =>
   fetch(url)
     .then((res) => res.json())
     .then((data) => {
-      console.log(data); // Log to see the structure
+      //console.log(data); // Log to see the structure
       return data;
     });
 
@@ -35,6 +35,8 @@ export function AssistantsTable({ offset }: { offset: number | null }) {
           <TableHeader>
             <TableRow>
               <TableHead className="max-w-[150px]">Name</TableHead>
+              <TableHead className="hidden md:table-cell">Identity</TableHead>
+              <TableHead className="hidden md:table-cell">Style</TableHead>
               <TableHead className="hidden md:table-cell">Model</TableHead>
               <TableHead className="hidden md:table-cell">Voice</TableHead>
               <TableHead></TableHead>
@@ -59,9 +61,17 @@ function AssistantRow({ assistant }: { assistant: SelectAssistant }) {
     <TableRow>
       <TableCell className="font-medium">{assistant.name}</TableCell>
       <TableCell className="hidden md:table-cell">
-        {JSON.stringify(assistant.model)}
+        {assistant.identity || 'N/A'}
       </TableCell>
-      <TableCell>{JSON.stringify(assistant.voice)}</TableCell>
+      <TableCell className="hidden md:table-cell">
+        {assistant.style || 'N/A'}
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        {assistant.model ? JSON.stringify(assistant.model) : 'N/A'}
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        {assistant.voice ? JSON.stringify(assistant.voice) : 'N/A'}
+      </TableCell>
       <TableCell>
         <Button
           className="w-full"

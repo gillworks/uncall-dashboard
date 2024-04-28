@@ -22,9 +22,11 @@ const users = pgTable('users', {
 
 const assistants = pgTable('assistants', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 50 }),
+  name: varchar('name', { length: 255 }),
   model: jsonb('model'),
-  voice: jsonb('voice')
+  voice: jsonb('voice'),
+  identity: varchar('identity', { length: 255 }),
+  style: varchar('style')
 });
 
 export type SelectUser = typeof users.$inferSelect;
@@ -81,7 +83,11 @@ export async function getAssistants(
     return { assistants: [], newOffset: null };
   }
 
-  const moreAssistants = await db.select().from(assistants).limit(20).offset(offset);
+  const moreAssistants = await db
+    .select()
+    .from(assistants)
+    .limit(20)
+    .offset(offset);
   const newOffset = moreAssistants.length >= 20 ? offset + 20 : null;
   return { assistants: moreAssistants, newOffset };
 }

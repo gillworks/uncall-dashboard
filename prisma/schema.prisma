@@ -39,5 +39,6 @@ model tasks {
   createdAt    DateTime    @default(now()) @db.Timestamptz(6)
   updatedAt    DateTime    @default(now()) @db.Timestamptz(6)
   deletedAt    DateTime?   @db.Timestamptz(6)
+  type         String?
   assistants   assistants? @relation(fields: [assistantId], references: [id], onUpdate: NoAction)
 }

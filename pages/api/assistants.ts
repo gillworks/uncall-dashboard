@@ -8,7 +8,11 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === 'GET') {
-    const assistants = await prisma.assistants.findMany();
+    const assistants = await prisma.assistants.findMany({
+      where: {
+        deletedAt: null
+      }
+    });
     res.status(200).json(assistants);
   } else {
     res.setHeader('Allow', ['GET']);

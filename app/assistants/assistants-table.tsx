@@ -10,9 +10,8 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { SelectAssistant } from '@/lib/db';
-import { deleteAssistant } from '../actions';
 import { useRouter } from 'next/navigation';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 
 const fetcher = (url: string) =>
   fetch(url)
@@ -21,6 +20,18 @@ const fetcher = (url: string) =>
       //console.log(data); // Log to see the structure
       return data;
     });
+
+async function deleteAssistant(assistantId: string) {
+  const response = await fetch(`/api/delete-assistant?id=${assistantId}`, {
+    method: 'DELETE'
+  });
+  if (response.ok) {
+    // Re-fetch assistants data to update the UI
+    mutate('/api/assistants');
+  } else {
+    console.error('Failed to delete the assistant');
+  }
+}
 
 export function AssistantsTable({ offset }: { offset: number | null }) {
   const { data: assistants, error } = useSWR(`/api/assistants`, fetcher);
@@ -55,7 +66,8 @@ export function AssistantsTable({ offset }: { offset: number | null }) {
 
 function AssistantRow({ assistant }: { assistant: SelectAssistant }) {
   const assistantId = assistant.id;
-  const deleteAssistantWithId = deleteAssistant.bind(null, assistantId);
+
+  const deleteAssistantWithId = () => deleteAssistant(assistantId.toString());
 
   return (
     <TableRow>
@@ -77,8 +89,7 @@ function AssistantRow({ assistant }: { assistant: SelectAssistant }) {
           className="w-full"
           size="sm"
           variant="outline"
-          formAction={deleteAssistantWithId}
-          disabled
+          onClick={deleteAssistantWithId} // Bind the onClick event to the delete function
         >
           Delete
         </Button>

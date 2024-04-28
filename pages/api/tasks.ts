@@ -9,6 +9,9 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     const tasks = await prisma.tasks.findMany({
+      where: {
+        deletedAt: null // Only select tasks where deletedAt is null
+      },
       include: {
         assistants: {
           select: {

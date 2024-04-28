@@ -1,7 +1,7 @@
 'use client';
 
 import { MoreHorizontal } from 'lucide-react';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,18 @@ interface Task {
     name: string;
   };
   createdAt: string;
+}
+
+async function deleteTask(taskId: string) {
+  const response = await fetch(`/api/delete-task?id=${taskId}`, {
+    method: 'DELETE'
+  });
+  if (response.ok) {
+    // Re-fetch tasks data to update the UI
+    mutate('/api/tasks');
+  } else {
+    console.error('Failed to delete the task');
+  }
 }
 
 export function TasksTable() {
@@ -125,7 +137,9 @@ export function TasksTable() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => deleteTask(task.id)}>
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

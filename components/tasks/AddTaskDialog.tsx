@@ -54,7 +54,6 @@ interface Assistant {
 export function AddTaskDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [assistants, setAssistants] = useState<Assistant[]>([]);
-  const [selectedAssistantId, setSelectedAssistantId] = useState('');
 
   useEffect(() => {
     fetch('/api/assistants')
@@ -193,26 +192,17 @@ export function AddTaskDialog() {
                   <FormItem>
                     <FormLabel>Assistant</FormLabel>
                     <Select
-                      onValueChange={(value) => {
-                        console.log(
-                          'Assistant Name:',
-                          assistants.find((a) => a.id === value)?.name
-                        );
-                      }}
-                      value={selectedAssistantId} // Set the current value
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Choose an assistant">
-                            {assistants.find(
-                              (a) => a.id === selectedAssistantId
-                            )?.name || ''}
-                          </SelectValue>
+                          <SelectValue placeholder="Choose an assistant" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {assistants.map((assistant) => (
-                          <SelectItem key={assistant.id} value={assistant.id}>
+                          <SelectItem key={assistant.id} value={assistant.name}>
                             {assistant.name}
                           </SelectItem>
                         ))}

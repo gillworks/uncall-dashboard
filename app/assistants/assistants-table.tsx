@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { SelectAssistant } from '@/lib/db';
-import { deleteAssistant } from './actions';
+import { deleteAssistant } from '../actions';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 

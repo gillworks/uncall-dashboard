@@ -12,18 +12,7 @@ import {
   DialogTrigger,
   DialogClose
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { Form } from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
 import { mutate } from 'swr';
@@ -31,6 +20,7 @@ import { mutate } from 'swr';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { AssistantFormFields } from './AssistantFormFields';
 
 const formSchema = z.object({
   name: z.string().max(255).min(2),
@@ -109,86 +99,7 @@ export function AddAssistantDialog() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="col-span-3" />
-                    </FormControl>
-                    <FormDescription>
-                      This is your assistant's display name.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="identity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Identity</FormLabel>
-                    <FormControl>
-                      <Input {...field} className="col-span-3" />
-                    </FormControl>
-                    <FormDescription>
-                      This is your assistant's identity.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="style"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Style</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} className="col-span-3" />
-                    </FormControl>
-                    <FormDescription>
-                      What is this assistant's style?
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="model"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Model</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} className="col-span-3" />
-                    </FormControl>
-                    <FormDescription>
-                      JSON data for the assistant's model.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="voice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Voice</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} className="col-span-3" />
-                    </FormControl>
-                    <FormDescription>
-                      JSON data for the assistant's voice configuration.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <AssistantFormFields form={form} />
             </div>
             <DialogFooter className="flex justify-between">
               <DialogClose asChild>

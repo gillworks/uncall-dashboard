@@ -41,5 +41,22 @@ model tasks {
   deletedAt    DateTime?   @db.Timestamptz(6)
   type         String?
   scheduledAt  DateTime?   @db.Timestamptz(6)
+  calls        calls[]
   assistants   assistants? @relation(fields: [assistantId], references: [id], onUpdate: NoAction)
+}
+
+model calls {
+  id           Int       @id @default(autoincrement())
+  taskId       Int?
+  status       String?
+  vapiId       String?
+  summary      String?
+  transcript   String?
+  startedAt    DateTime? @db.Timestamptz(6)
+  endedAt      DateTime? @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime  @default(now()) @db.Timestamptz(6)
+  deletedAt    DateTime? @db.Timestamptz(6)
+  recordingUrl String?
+  tasks        tasks?    @relation(fields: [taskId], references: [id], onUpdate: NoAction)
 }

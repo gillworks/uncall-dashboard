@@ -63,7 +63,7 @@ export default function RootLayout({
                       <TaskIcon className="h-4 w-4" />
                       Tasks
                     </NavItem>
-                    <NavItem href="/mail">
+                    <NavItem href="/calls">
                       <PhoneOutgoingIcon className="h-4 w-4" />
                       <span className="flex justify-between w-full">
                         Calls

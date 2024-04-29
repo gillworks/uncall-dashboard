@@ -176,7 +176,10 @@ export function TasksTable() {
           <DialogTitle>Confirm Deletion</DialogTitle>
           <DialogDescription>
             Are you sure you want to delete the task "
-            {tasks.find((task: Task) => task.id === selectedTaskId)?.name}"?
+            {tasks && Array.isArray(tasks)
+              ? tasks.find((task: Task) => task.id === selectedTaskId)?.name
+              : 'this task'}
+            "?
           </DialogDescription>
           <DialogClose asChild>
             <Button variant="ghost">Cancel</Button>

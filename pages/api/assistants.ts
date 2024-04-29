@@ -11,6 +11,9 @@ export default async function handler(
     const assistants = await prisma.assistants.findMany({
       where: {
         deletedAt: null
+      },
+      orderBy: {
+        createdAt: 'asc'
       }
     });
     res.status(200).json(assistants);

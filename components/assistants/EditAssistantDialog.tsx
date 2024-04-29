@@ -84,10 +84,8 @@ export function EditAssistantDialog({
         name: values.name,
         identity: values.identity,
         style: values.style,
-        model: values.model
-          ? JSON.stringify({ modelData: values.model })
-          : null,
-        voice: values.voice ? JSON.stringify({ voiceData: values.voice }) : null
+        model: values.model,
+        voice: values.voice
       })
     })
       .then((response) => response.json())

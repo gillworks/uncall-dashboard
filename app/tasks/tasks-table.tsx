@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AddTaskDialog } from '@/components/tasks/AddTaskDialog';
+import { EditTaskDialog } from '@/components/tasks/EditTaskDialog';
 import {
   Card,
   CardContent,
@@ -67,6 +68,7 @@ export function TasksTable() {
   const { data: tasks, error } = useSWR('/api/tasks', fetcher);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   if (error) return <div>Failed to load tasks.</div>;
   if (!tasks) return <div>Loading tasks...</div>;
@@ -74,6 +76,11 @@ export function TasksTable() {
   const confirmDeleteTask = (taskId: string) => {
     setSelectedTaskId(taskId);
     setIsConfirmOpen(true);
+  };
+
+  const openEditDialog = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setIsEditOpen(true);
   };
 
   return (
@@ -151,7 +158,11 @@ export function TasksTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => openEditDialog(task.id)}
+                        >
+                          Edit
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onSelect={() => confirmDeleteTask(task.id)}
                         >
@@ -195,6 +206,13 @@ export function TasksTable() {
           </Button>
         </DialogContent>
       </Dialog>
+      {selectedTaskId && (
+        <EditTaskDialog
+          taskId={selectedTaskId}
+          isOpen={isEditOpen}
+          onOpenChange={setIsEditOpen}
+        />
+      )}
     </Card>
   );
 }

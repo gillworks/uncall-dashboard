@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { UserRoundPlus } from 'lucide-react';
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
@@ -50,6 +49,29 @@ export function EditAssistantDialog({
       voice: ''
     }
   });
+
+  useEffect(() => {
+    form.reset({
+      // Reset the form with empty values before fetching new data
+      name: '',
+      identity: '',
+      style: '',
+      model: '',
+      voice: ''
+    });
+    fetch(`/api/assistant/${assistantId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        form.reset({
+          name: data.name,
+          identity: data.identity,
+          style: data.style,
+          model: data.model ? JSON.stringify(data.model) : '',
+          voice: data.voice ? JSON.stringify(data.voice) : ''
+        });
+      })
+      .catch((error) => console.error('Failed to fetch assistant:', error));
+  }, [assistantId, form]);
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {

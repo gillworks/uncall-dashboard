@@ -1,20 +1,21 @@
 import { format, addHours, addDays, nextSaturday } from 'date-fns';
 import {
   Archive,
-  ArchiveX,
-  Clock,
-  Forward,
+  Download,
   MoreVertical,
   Reply,
   ReplyAll,
-  Trash2
+  Trash2,
+  AudioLines,
+  PhoneOutgoing, // Assuming call type icons are needed
+  PhoneIncoming,
+  ClipboardCheck // Added ClipboardCheck icon import
 } from 'lucide-react';
 
 import {
   DropdownMenuContent,
   DropdownMenuItem
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -59,74 +60,24 @@ export function CallDisplay({ call }: CallDisplayProps) {
           </Tooltip>
           <Separator orientation="vertical" className="mx-1 h-6" />
           <Tooltip>
-            <Popover>
-              <PopoverTrigger asChild>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" disabled={!call}>
-                    <Clock className="h-4 w-4" />
-                    <span className="sr-only">Snooze</span>
-                  </Button>
-                </TooltipTrigger>
-              </PopoverTrigger>
-              <PopoverContent className="flex w-[535px] p-0">
-                <div className="flex flex-col gap-2 border-r px-2 py-4">
-                  <div className="px-4 text-sm font-medium">Snooze until</div>
-                  <div className="grid min-w-[250px] gap-1">
-                    <Button
-                      variant="ghost"
-                      className="justify-start font-normal"
-                    >
-                      Later today{' '}
-                      <span className="ml-auto text-muted-foreground">
-                        {format(addHours(today, 4), 'E, h:m b')}
-                      </span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="justify-start font-normal"
-                    >
-                      Tomorrow
-                      <span className="ml-auto text-muted-foreground">
-                        {format(addDays(today, 1), 'E, h:m b')}
-                      </span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="justify-start font-normal"
-                    >
-                      This weekend
-                      <span className="ml-auto text-muted-foreground">
-                        {format(nextSaturday(today), 'E, h:m b')}
-                      </span>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="justify-start font-normal"
-                    >
-                      Next week
-                      <span className="ml-auto text-muted-foreground">
-                        {format(addDays(today, 7), 'E, h:m b')}
-                      </span>
-                    </Button>
-                  </div>
-                </div>
-                <div className="p-2">
-                  <Calendar />
-                </div>
-              </PopoverContent>
-            </Popover>
-            <TooltipContent>Snooze</TooltipContent>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" disabled={!call}>
+                <AudioLines className="h-4 w-4" />
+                <span className="sr-only">Recording</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Play Recording</TooltipContent>
           </Tooltip>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" disabled={!call}>
-                <Forward className="h-4 w-4" />
-                <span className="sr-only">Forward</span>
+                <Download className="h-4 w-4" />
+                <span className="sr-only">Download</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Forward</TooltipContent>
+            <TooltipContent>Download Recording</TooltipContent>
           </Tooltip>
         </div>
         <Separator orientation="vertical" className="mx-2 h-6" />
@@ -139,9 +90,7 @@ export function CallDisplay({ call }: CallDisplayProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Mark as unread</DropdownMenuItem>
-            <DropdownMenuItem>Star thread</DropdownMenuItem>
-            <DropdownMenuItem>Add label</DropdownMenuItem>
-            <DropdownMenuItem>Mute thread</DropdownMenuItem>
+            <DropdownMenuItem>Add note</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -150,59 +99,38 @@ export function CallDisplay({ call }: CallDisplayProps) {
         <div className="flex flex-1 flex-col">
           <div className="flex items-start p-4">
             <div className="flex items-start gap-4 text-sm">
-              <Avatar>
-                <AvatarImage alt={call.name} />
-                <AvatarFallback>
-                  {call.name
-                    .split(' ')
-                    .map((chunk) => chunk[0])
-                    .join('')}
-                </AvatarFallback>
-              </Avatar>
               <div className="grid gap-1">
-                <div className="font-semibold">{call.name}</div>
-                <div className="line-clamp-1 text-xs">{call.subject}</div>
-                <div className="line-clamp-1 text-xs">
-                  <span className="font-medium">Reply-To:</span> {call.email}
+                <div className="flex items-center font-semibold">
+                  {call.assistant}
+                  {call.type === 'outbound' ? (
+                    <PhoneOutgoing className="ml-1 h-4 w-4" />
+                  ) : (
+                    <PhoneIncoming className="ml-1 h-4 w-4" />
+                  )}
+                </div>
+                <div className="line-clamp-1 text-xs flex items-center">
+                  <ClipboardCheck className="mr-1 h-4 w-4" />
+                  {call.task}
                 </div>
               </div>
             </div>
-            {call.date && (
+            {call.startedAt && (
               <div className="ml-auto text-xs text-muted-foreground">
-                {format(new Date(call.date), 'PPpp')}
+                {format(new Date(call.startedAt), 'PPpp')}
               </div>
             )}
           </div>
           <Separator />
-          <div className="flex-1 whitespace-pre-wrap p-4 text-sm">
-            {call.text}
+          <div className="px-4 py-2">
+            <h3 className="text-sm font-semibold mb-2">Summary</h3>
+            <div className="whitespace-pre-wrap text-sm py-2">
+              {call.summary}
+            </div>
           </div>
-          <Separator className="mt-auto" />
-          <div className="p-4">
-            <form>
-              <div className="grid gap-4">
-                <Textarea
-                  className="p-4"
-                  placeholder={`Reply ${call.name}...`}
-                />
-                <div className="flex items-center">
-                  <Label
-                    htmlFor="mute"
-                    className="flex items-center gap-2 text-xs font-normal"
-                  >
-                    <Switch id="mute" aria-label="Mute thread" /> Mute this
-                    thread
-                  </Label>
-                  <Button
-                    //onClick={(e) => e.preventDefault()}
-                    size="sm"
-                    className="ml-auto"
-                  >
-                    Send
-                  </Button>
-                </div>
-              </div>
-            </form>
+          <Separator />
+          <div className="flex-1 whitespace-pre-wrap px-4 py-2 text-sm">
+            <h3 className="text-sm font-semibold mb-2">Transcript</h3>
+            <div className="py-2">{call.transcript}</div>
           </div>
         </div>
       ) : (

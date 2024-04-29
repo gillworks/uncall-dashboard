@@ -72,13 +72,19 @@ export function Calls({
                   value="all"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
-                  All call
+                  All calls
                 </TabsTrigger>
                 <TabsTrigger
-                  value="unread"
+                  value="outbound"
                   className="text-zinc-600 dark:text-zinc-200"
                 >
-                  Unread
+                  Outbound
+                </TabsTrigger>
+                <TabsTrigger
+                  value="inbound"
+                  className="text-zinc-600 dark:text-zinc-200"
+                >
+                  Inbound
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -94,8 +100,15 @@ export function Calls({
             <TabsContent value="all" className="m-0">
               <CallList items={calls} />
             </TabsContent>
-            <TabsContent value="unread" className="m-0">
-              <CallList items={calls.filter((item) => !item.read)} />
+            <TabsContent value="outbound" className="m-0">
+              <CallList
+                items={calls.filter((item) => item.type === 'outbound')}
+              />
+            </TabsContent>
+            <TabsContent value="inbound" className="m-0">
+              <CallList
+                items={calls.filter((item) => item.type === 'inbound')}
+              />
             </TabsContent>
           </Tabs>
         </ResizablePanel>

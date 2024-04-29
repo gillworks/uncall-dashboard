@@ -1,50 +1,34 @@
-import { format, addHours, addDays, nextSaturday } from 'date-fns';
+import { format } from 'date-fns';
 import {
   Archive,
   Download,
   MoreVertical,
-  Reply,
-  ReplyAll,
-  Trash2,
   AudioLines,
-  PhoneOutgoing, // Assuming call type icons are needed
+  PhoneOutgoing,
   PhoneIncoming,
-  ClipboardCheck // Added ClipboardCheck icon import
+  ClipboardCheck
 } from 'lucide-react';
 
 import {
   DropdownMenuContent,
-  DropdownMenuItem
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import {
+  DropdownMenuItem,
   DropdownMenu,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Label } from '@/components/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { Call } from '@/components/calls/data';
+import { Call } from '@/types';
 
 interface CallDisplayProps {
   call: Call | null;
 }
 
 export function CallDisplay({ call }: CallDisplayProps) {
-  const today = new Date();
-
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center p-2">
@@ -101,7 +85,7 @@ export function CallDisplay({ call }: CallDisplayProps) {
             <div className="flex items-start gap-4 text-sm">
               <div className="grid gap-1">
                 <div className="flex items-center font-semibold">
-                  {call.assistant}
+                  {call.tasks.assistants.name}
                   {call.type === 'outbound' ? (
                     <PhoneOutgoing className="ml-1 h-4 w-4" />
                   ) : (
@@ -110,7 +94,7 @@ export function CallDisplay({ call }: CallDisplayProps) {
                 </div>
                 <div className="line-clamp-1 text-xs flex items-center">
                   <ClipboardCheck className="mr-1 h-4 w-4" />
-                  {call.task}
+                  {call.tasks.name}
                 </div>
               </div>
             </div>
@@ -135,7 +119,7 @@ export function CallDisplay({ call }: CallDisplayProps) {
         </div>
       ) : (
         <div className="p-8 text-center text-muted-foreground">
-          No message selected
+          No call selected
         </div>
       )}
     </div>

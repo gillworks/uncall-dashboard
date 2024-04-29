@@ -1,21 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import {
-  AlertCircle,
-  Archive,
-  ArchiveX,
-  File,
-  Inbox,
-  MessagesSquare,
-  Search,
-  Send,
-  ShoppingCart,
-  Trash2,
-  Users2
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Search } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import {
   ResizableHandle,
@@ -27,29 +15,37 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { CallDisplay } from '@/components/calls/components/call-display';
 import { CallList } from '@/components/calls/components/call-list';
-import { type Call } from '@/components/calls/data';
 import { useCall } from '@/components/calls/use-call';
+import { Call } from '@/types';
 
 interface CallProps {
-  accounts: {
-    label: string;
-    email: string;
-    icon: React.ReactNode;
-  }[];
-  calls: Call[];
   defaultLayout: number[] | undefined;
   defaultCollapsed?: boolean;
   navCollapsedSize: number;
 }
 
 export function Calls({
-  accounts,
-  calls,
   defaultLayout = [440, 655],
   defaultCollapsed = false,
   navCollapsedSize
 }: CallProps) {
+  const [calls, setCalls] = useState<Call[]>([]);
+  const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
   const [call] = useCall();
+
+  useEffect(() => {
+    async function fetchCalls() {
+      const response = await fetch('/api/calls');
+      const data = await response.json();
+      setCalls(data);
+    }
+
+    fetchCalls();
+  }, []);
+
+  useEffect(() => {
+    console.log('Selected Call ID:', selectedCallId);
+  }, [selectedCallId]);
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -60,7 +56,7 @@ export function Calls({
             sizes
           )}`;
         }}
-        className="h-full max-h-[800px] items-stretch"
+        className="h-screen items-stretch"
       >
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[0]} minSize={30}>
@@ -98,16 +94,23 @@ export function Calls({
               </form>
             </div>
             <TabsContent value="all" className="m-0">
-              <CallList items={calls} />
+              <CallList
+                selectedCallId={selectedCallId}
+                setSelectedCallId={setSelectedCallId}
+              />
             </TabsContent>
             <TabsContent value="outbound" className="m-0">
               <CallList
-                items={calls.filter((item) => item.type === 'outbound')}
+                callType="outbound"
+                selectedCallId={selectedCallId}
+                setSelectedCallId={setSelectedCallId}
               />
             </TabsContent>
             <TabsContent value="inbound" className="m-0">
               <CallList
-                items={calls.filter((item) => item.type === 'inbound')}
+                callType="inbound"
+                selectedCallId={selectedCallId}
+                setSelectedCallId={setSelectedCallId}
               />
             </TabsContent>
           </Tabs>
@@ -115,7 +118,7 @@ export function Calls({
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={defaultLayout[1]}>
           <CallDisplay
-            call={calls.find((item) => item.id === call.selected) || null}
+            call={calls.find((item) => item.id === selectedCallId) || null}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

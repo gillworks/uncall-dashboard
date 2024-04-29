@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react';
+import { useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import {
   ClipboardCheck,
@@ -14,21 +14,43 @@ import {
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Call } from '@/components/calls/data';
 import { useCall } from '@/components/calls/use-call';
+import { Call } from '@/types';
 
 interface CallListProps {
-  items: Call[];
+  callType?: 'inbound' | 'outbound';
+  selectedCallId: string | null;
+  setSelectedCallId: (id: string | null) => void;
 }
 
-export function CallList({ items }: CallListProps) {
-  const [call, setCall] = useCall();
+export function CallList({
+  callType,
+  selectedCallId,
+  setSelectedCallId
+}: CallListProps) {
+  const [calls, setCalls] = useState<Call[]>([]);
+
+  useEffect(() => {
+    async function fetchCalls() {
+      const url = callType ? `/api/calls?type=${callType}` : '/api/calls';
+      const response = await fetch(url);
+      const data = await response.json();
+      setCalls(
+        data.map((call: Call) => ({
+          ...call,
+          taskName: call.tasks.name,
+          assistant: call.tasks.assistants.name
+        }))
+      );
+    }
+
+    fetchCalls();
+  }, [callType]);
 
   return (
     <ScrollArea className="h-screen">
       <div className="flex flex-col gap-2 p-4 pt-0">
-        {items.map((item) => {
+        {calls.map((item) => {
           const labels: {
             text: string;
             variant:
@@ -81,19 +103,16 @@ export function CallList({ items }: CallListProps) {
               key={item.id}
               className={cn(
                 'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent',
-                call.selected === item.id && 'bg-muted'
+                selectedCallId === item.id && 'bg-muted'
               )}
-              onClick={() =>
-                setCall({
-                  ...call,
-                  selected: item.id
-                })
-              }
+              onClick={() => setSelectedCallId(item.id)}
             >
               <div className="flex w-full flex-col gap-1">
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
-                    <div className="font-semibold">{item.assistant}</div>
+                    <div className="font-semibold">
+                      {item.tasks.assistants.name}
+                    </div>
                     {item.type === 'outbound' ? (
                       <PhoneOutgoing className="ml-1 h-4 w-4" />
                     ) : (
@@ -106,7 +125,7 @@ export function CallList({ items }: CallListProps) {
                   <div
                     className={cn(
                       'ml-auto text-xs',
-                      call.selected === item.id
+                      selectedCallId === item.id
                         ? 'text-foreground'
                         : 'text-muted-foreground'
                     )}
@@ -118,7 +137,7 @@ export function CallList({ items }: CallListProps) {
                 </div>
                 <div className="flex items-center gap-1">
                   <ClipboardCheck className="h-3 w-3 text-muted-foreground" />
-                  <div className="text-xs font-medium">{item.task}</div>
+                  <div className="text-xs font-medium">{item.tasks.name}</div>
                 </div>
               </div>
               <div className="line-clamp-2 text-xs text-muted-foreground">

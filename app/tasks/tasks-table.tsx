@@ -122,9 +122,9 @@ export function TasksTable() {
                   <TableCell>
                     <Badge
                       variant={
-                        task.status === 'active'
+                        task.status === 'in progress'
                           ? 'default'
-                          : task.status === 'in progress'
+                          : task.status === 'complete'
                             ? 'secondary'
                             : 'outline'
                       }

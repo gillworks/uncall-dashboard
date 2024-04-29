@@ -13,6 +13,14 @@ import { SelectAssistant } from '@/lib/db';
 import useSWR, { mutate } from 'swr';
 import { EditAssistantDialog } from '@/components/assistants/EditAssistantDialog';
 import { useState } from 'react';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose
+} from '@/components/ui/dialog';
 
 const fetcher = (url: string) =>
   fetch(url)
@@ -91,7 +99,8 @@ function AssistantRow({
 }) {
   const assistantId = assistant.id;
 
-  const deleteAssistantWithId = () => deleteAssistant(assistantId.toString());
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const deleteAssistantWithId = () => setIsConfirmOpen(true);
 
   // Use setIsOpen from props to control the dialog visibility
   const handleEditClick = (assistant: SelectAssistant) => {
@@ -101,6 +110,26 @@ function AssistantRow({
 
   return (
     <TableRow>
+      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <DialogContent>
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete the assistant "{assistant.name}"?
+          </DialogDescription>
+          <DialogClose asChild>
+            <Button variant="ghost">Cancel</Button>
+          </DialogClose>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              deleteAssistant(assistantId.toString());
+              setIsConfirmOpen(false);
+            }}
+          >
+            Delete
+          </Button>
+        </DialogContent>
+      </Dialog>
       <TableCell className="font-medium">{assistant.name}</TableCell>
       <TableCell className="hidden md:table-cell">
         {assistant.identity || 'N/A'}
@@ -130,7 +159,10 @@ function AssistantRow({
           className="flex-1"
           size="sm"
           variant="destructive"
-          onClick={deleteAssistantWithId}
+          onClick={(event) => {
+            event.preventDefault();
+            deleteAssistantWithId();
+          }}
         >
           Delete
         </Button>

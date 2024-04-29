@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { UserRoundPlus } from 'lucide-react';
+import { CalendarPlus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -107,7 +107,7 @@ export function AddTaskDialog() {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <UserRoundPlus className="mr-2 h-4 w-4" /> Add Task
+          <CalendarPlus className="mr-2 h-4 w-4" /> Add Task
         </Button>
       </DialogTrigger>
       <Form {...form}>

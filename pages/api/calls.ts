@@ -19,6 +19,9 @@ export default async function handler(
 
     const calls = await prisma.calls.findMany({
       where: whereClause,
+      orderBy: {
+        createdAt: 'desc'
+      },
       include: {
         tasks: {
           select: {

@@ -59,5 +59,6 @@ model calls {
   deletedAt    DateTime? @db.Timestamptz(6)
   recordingUrl String?
   type         String
+  transcribed  Boolean?
   tasks        tasks?    @relation(fields: [taskId], references: [id], onUpdate: NoAction)
 }

@@ -14,8 +14,8 @@ import {
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useCall } from '@/components/calls/use-call';
 import { Call } from '@/types';
+import { mutate } from 'swr';
 
 interface CallListProps {
   callType?: 'inbound' | 'outbound';
@@ -46,6 +46,32 @@ export function CallList({
 
     fetchCalls();
   }, [callType]);
+
+  const handleSelectCall = async (id: string) => {
+    setSelectedCallId(id);
+    const selectedCall = calls.find((call) => call.id === id);
+    if (selectedCall && !selectedCall.read) {
+      try {
+        const response = await fetch(`/api/edit-call/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ read: true })
+        });
+        if (response.ok) {
+          setCalls(
+            calls.map((call) =>
+              call.id === id ? { ...call, read: true } : call
+            )
+          );
+          mutate('/api/unread-calls-count');
+        }
+      } catch (error) {
+        console.error('Failed to mark call as read', error);
+      }
+    }
+  };
 
   return (
     <ScrollArea className="h-screen">
@@ -105,7 +131,7 @@ export function CallList({
                 'flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent',
                 selectedCallId === item.id && 'bg-muted'
               )}
-              onClick={() => setSelectedCallId(item.id)}
+              onClick={() => handleSelectCall(item.id)}
             >
               <div className="flex w-full flex-col gap-1">
                 <div className="flex items-center">

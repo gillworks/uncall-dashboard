@@ -60,5 +60,6 @@ model calls {
   recordingUrl String?
   type         String
   transcribed  Boolean?
+  read         Boolean   @default(false)
   tasks        tasks?    @relation(fields: [taskId], references: [id], onUpdate: NoAction)
 }

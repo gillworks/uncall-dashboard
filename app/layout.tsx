@@ -2,20 +2,12 @@ import './globals.css';
 
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
-import {
-  Logo,
-  PhoneOutgoingIcon,
-  SettingsIcon,
-  UsersIcon,
-  TaskIcon,
-  TimelineChartIcon
-} from '@/components/icons';
+import { Logo } from '@/components/icons';
 import { User } from './user';
 import { ModeToggle } from '@/components/theme/mode-toggle';
-import { NavItem } from './nav-item';
 import { ThemeProvider } from '@/components/theme/theme-provider';
-import { Badge } from '@/components/ui/badge';
 import { Toaster } from '@/components/ui/toaster';
+import { Nav } from '@/components/nav';
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
@@ -51,31 +43,7 @@ export default function RootLayout({
                 </div>
                 <div className="flex-1 overflow-auto py-2">
                   <nav className="grid items-start px-4 text-sm font-medium">
-                    <NavItem href="/">
-                      <TimelineChartIcon className="h-4 w-4" />
-                      Dashboard
-                    </NavItem>
-                    <NavItem href="/assistants">
-                      <UsersIcon className="h-4 w-4" />
-                      Assistants
-                    </NavItem>
-                    <NavItem href="/tasks">
-                      <TaskIcon className="h-4 w-4" />
-                      Tasks
-                    </NavItem>
-                    <NavItem href="/calls">
-                      <PhoneOutgoingIcon className="h-4 w-4" />
-                      <span className="flex justify-between w-full">
-                        Calls
-                        <Badge className="ml-1" variant="default">
-                          3
-                        </Badge>
-                      </span>
-                    </NavItem>
-                    <NavItem href="/settings">
-                      <SettingsIcon className="h-4 w-4" />
-                      Settings
-                    </NavItem>
+                    <Nav />
                   </nav>
                 </div>
               </div>

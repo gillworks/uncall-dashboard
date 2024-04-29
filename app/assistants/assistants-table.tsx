@@ -110,26 +110,6 @@ function AssistantRow({
 
   return (
     <TableRow>
-      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-        <DialogContent>
-          <DialogTitle>Confirm Deletion</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete the assistant "{assistant.name}"?
-          </DialogDescription>
-          <DialogClose asChild>
-            <Button variant="ghost">Cancel</Button>
-          </DialogClose>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              deleteAssistant(assistantId.toString());
-              setIsConfirmOpen(false);
-            }}
-          >
-            Delete
-          </Button>
-        </DialogContent>
-      </Dialog>
       <TableCell className="font-medium">{assistant.name}</TableCell>
       <TableCell className="hidden md:table-cell">
         {assistant.identity || 'N/A'}
@@ -167,6 +147,26 @@ function AssistantRow({
           Delete
         </Button>
       </TableCell>
+      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <DialogContent>
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete the assistant "{assistant.name}"?
+          </DialogDescription>
+          <DialogClose asChild>
+            <Button variant="ghost">Cancel</Button>
+          </DialogClose>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              deleteAssistant(assistantId.toString());
+              setIsConfirmOpen(false);
+            }}
+          >
+            Delete
+          </Button>
+        </DialogContent>
+      </Dialog>
     </TableRow>
   );
 }

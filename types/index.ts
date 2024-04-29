@@ -10,6 +10,7 @@ export type Call = {
   transcript: string;
   startedAt: string;
   endedAt: string;
+  createdAt: string;
   transcribed: boolean;
   status: string;
   recordingUrl: string;

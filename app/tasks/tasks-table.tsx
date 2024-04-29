@@ -64,6 +64,41 @@ async function deleteTask(taskId: string) {
   }
 }
 
+async function startTask(taskId: string) {
+  const startResponse = await fetch('/api/add-call', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      taskId: taskId,
+      status: 'queued',
+      type: 'outbound'
+    })
+  });
+
+  if (startResponse.ok) {
+    const updateResponse = await fetch(`/api/edit-task-status/${taskId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        status: 'in progress'
+      })
+    });
+
+    if (updateResponse.ok) {
+      mutate('/api/tasks');
+      mutate('/api/unread-calls-count');
+    } else {
+      console.error('Failed to update the task status to in progress');
+    }
+  } else {
+    console.error('Failed to start the task');
+  }
+}
+
 export function TasksTable() {
   const { data: tasks, error } = useSWR('/api/tasks', fetcher);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -158,6 +193,14 @@ export function TasksTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        {task.status === 'draft' &&
+                          task.type === 'Outbound Call' && (
+                            <DropdownMenuItem
+                              onSelect={() => startTask(task.id)}
+                            >
+                              Start Task
+                            </DropdownMenuItem>
+                          )}
                         <DropdownMenuItem
                           onSelect={() => openEditDialog(task.id)}
                         >

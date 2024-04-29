@@ -156,9 +156,12 @@ export function CallList({
                         : 'text-muted-foreground'
                     )}
                   >
-                    {formatDistanceToNow(new Date(item.startedAt), {
-                      addSuffix: true
-                    })}
+                    {formatDistanceToNow(
+                      new Date(item.startedAt || item.createdAt),
+                      {
+                        addSuffix: true
+                      }
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-1">

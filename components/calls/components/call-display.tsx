@@ -98,11 +98,11 @@ export function CallDisplay({ call }: CallDisplayProps) {
                 </div>
               </div>
             </div>
-            {call.startedAt && (
-              <div className="ml-auto text-xs text-muted-foreground">
-                {format(new Date(call.startedAt), 'PPpp')}
-              </div>
-            )}
+            <div className="ml-auto text-xs text-muted-foreground">
+              {call.startedAt
+                ? format(new Date(call.startedAt), 'PPpp')
+                : 'Queued'}
+            </div>
           </div>
           <Separator />
           <div className="px-4 py-2">

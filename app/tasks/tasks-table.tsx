@@ -29,6 +29,14 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose
+} from '@/components/ui/dialog';
+import { useState } from 'react';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -57,9 +65,16 @@ async function deleteTask(taskId: string) {
 
 export function TasksTable() {
   const { data: tasks, error } = useSWR('/api/tasks', fetcher);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   if (error) return <div>Failed to load tasks.</div>;
   if (!tasks) return <div>Loading tasks...</div>;
+
+  const confirmDeleteTask = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setIsConfirmOpen(true);
+  };
 
   return (
     <Card>
@@ -137,7 +152,9 @@ export function TasksTable() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => deleteTask(task.id)}>
+                        <DropdownMenuItem
+                          onSelect={() => confirmDeleteTask(task.id)}
+                        >
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -154,6 +171,27 @@ export function TasksTable() {
           <strong>{tasks.length}</strong> tasks
         </div>
       </CardFooter>
+      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <DialogContent>
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete the task "
+            {tasks.find((task: Task) => task.id === selectedTaskId)?.name}"?
+          </DialogDescription>
+          <DialogClose asChild>
+            <Button variant="ghost">Cancel</Button>
+          </DialogClose>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              deleteTask(selectedTaskId!);
+              setIsConfirmOpen(false);
+            }}
+          >
+            Delete
+          </Button>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

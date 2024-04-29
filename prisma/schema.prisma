@@ -58,5 +58,6 @@ model calls {
   updatedAt    DateTime  @default(now()) @db.Timestamptz(6)
   deletedAt    DateTime? @db.Timestamptz(6)
   recordingUrl String?
+  type         String
   tasks        tasks?    @relation(fields: [taskId], references: [id], onUpdate: NoAction)
 }

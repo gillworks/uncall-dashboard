@@ -40,5 +40,6 @@ model tasks {
   updatedAt    DateTime    @default(now()) @db.Timestamptz(6)
   deletedAt    DateTime?   @db.Timestamptz(6)
   type         String?
+  scheduledAt  DateTime?   @db.Timestamptz(6)
   assistants   assistants? @relation(fields: [assistantId], references: [id], onUpdate: NoAction)
 }

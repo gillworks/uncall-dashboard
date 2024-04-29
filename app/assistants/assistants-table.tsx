@@ -10,8 +10,9 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { SelectAssistant } from '@/lib/db';
-import { useRouter } from 'next/navigation';
 import useSWR, { mutate } from 'swr';
+import { EditAssistantDialog } from '@/components/assistants/EditAssistantDialog';
+import { useState } from 'react';
 
 const fetcher = (url: string) =>
   fetch(url)
@@ -35,12 +36,22 @@ async function deleteAssistant(assistantId: string) {
 
 export function AssistantsTable({ offset }: { offset: number | null }) {
   const { data: assistants, error } = useSWR(`/api/assistants`, fetcher);
+  const [selectedAssistant, setSelectedAssistant] =
+    useState<null | SelectAssistant>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   if (error) return <div>Failed to load</div>;
   if (!assistants || !Array.isArray(assistants)) return <div>Loading...</div>;
 
   return (
     <>
+      {selectedAssistant && (
+        <EditAssistantDialog
+          assistantId={selectedAssistant.id.toString()}
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+        />
+      )}
       <form className="border shadow-sm rounded-lg">
         <Table>
           <TableHeader>
@@ -50,12 +61,17 @@ export function AssistantsTable({ offset }: { offset: number | null }) {
               <TableHead className="hidden md:table-cell">Style</TableHead>
               <TableHead className="hidden md:table-cell">Model</TableHead>
               <TableHead className="hidden md:table-cell">Voice</TableHead>
-              <TableHead></TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {assistants.map((assistant: SelectAssistant) => (
-              <AssistantRow key={assistant.id} assistant={assistant} />
+              <AssistantRow
+                key={assistant.id}
+                assistant={assistant}
+                setSelectedAssistant={setSelectedAssistant}
+                setIsOpen={setIsOpen} // Pass setIsOpen to the row
+              />
             ))}
           </TableBody>
         </Table>
@@ -64,10 +80,24 @@ export function AssistantsTable({ offset }: { offset: number | null }) {
   );
 }
 
-function AssistantRow({ assistant }: { assistant: SelectAssistant }) {
+function AssistantRow({
+  assistant,
+  setSelectedAssistant,
+  setIsOpen // Pass setIsOpen from the parent component
+}: {
+  assistant: SelectAssistant;
+  setSelectedAssistant: (assistant: SelectAssistant) => void;
+  setIsOpen: (isOpen: boolean) => void; // Add this line
+}) {
   const assistantId = assistant.id;
 
   const deleteAssistantWithId = () => deleteAssistant(assistantId.toString());
+
+  // Use setIsOpen from props to control the dialog visibility
+  const handleEditClick = (assistant: SelectAssistant) => {
+    setSelectedAssistant(assistant);
+    setIsOpen(true);
+  };
 
   return (
     <TableRow>
@@ -84,12 +114,23 @@ function AssistantRow({ assistant }: { assistant: SelectAssistant }) {
       <TableCell className="hidden md:table-cell">
         {assistant.voice ? JSON.stringify(assistant.voice) : 'N/A'}
       </TableCell>
-      <TableCell>
+      <TableCell className="flex justify-between">
         <Button
-          className="w-full"
+          className="flex-1 mr-2"
           size="sm"
           variant="outline"
-          onClick={deleteAssistantWithId} // Bind the onClick event to the delete function
+          onClick={(event) => {
+            event.preventDefault();
+            handleEditClick(assistant);
+          }}
+        >
+          Edit
+        </Button>
+        <Button
+          className="flex-1"
+          size="sm"
+          variant="destructive"
+          onClick={deleteAssistantWithId}
         >
           Delete
         </Button>

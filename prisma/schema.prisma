@@ -63,3 +63,10 @@ model calls {
   read         Boolean   @default(false)
   tasks        tasks?    @relation(fields: [taskId], references: [id], onUpdate: NoAction)
 }
+
+model contacts {
+  id          Int     @id @default(autoincrement())
+  name        String
+  phoneNumber String  @db.VarChar(20)
+  extension   String? @db.VarChar(20)
+}

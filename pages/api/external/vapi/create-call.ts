@@ -12,7 +12,7 @@ export default async function handler(
   const options: RequestInit = {
     method: 'POST',
     headers: {
-      Authorization: 'Bearer 905a52ab-a8b2-4b59-af43-a83c203ea406',
+      Authorization: `Bearer ${process.env.VAPI_API_KEY}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({

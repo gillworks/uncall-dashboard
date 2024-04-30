@@ -64,6 +64,18 @@ export default async function handler(
         data: updateData
       });
 
+      // Update related task status to 'complete' if the call report is 'end-of-call-report'
+      if (message.type === 'end-of-call-report') {
+        if (existingCall.taskId !== null) {
+          await prisma.tasks.update({
+            where: { id: existingCall.taskId },
+            data: { status: 'complete' }
+          });
+        } else {
+          console.error('Task ID is null, cannot update task status.');
+        }
+      }
+
       res.status(200).json(updatedCall);
     } catch (error) {
       console.error(error);

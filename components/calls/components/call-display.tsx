@@ -99,9 +99,9 @@ export function CallDisplay({ call }: CallDisplayProps) {
               </div>
             </div>
             <div className="ml-auto text-xs text-muted-foreground">
-              {call.startedAt
-                ? format(new Date(call.startedAt), 'PPpp')
-                : 'Queued'}
+              {call.status === 'queued'
+                ? 'Queued'
+                : format(new Date(call.startedAt || call.createdAt), 'PPpp')}
             </div>
           </div>
           <Separator />

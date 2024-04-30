@@ -32,6 +32,19 @@ export default async function handler(
         return res.status(400).json({ error: 'Invalid message type' });
       }
 
+      let timestamps = {};
+      if (
+        message.type === 'status-update' ||
+        message.type === 'end-of-call-report'
+      ) {
+        const response = await fetch(`https://api.vapi.ai/call/${callId}`);
+        const callDetails = await response.json();
+        timestamps = {
+          startedAt: callDetails.startedAt,
+          endedAt: callDetails.endedAt
+        };
+      }
+
       const updateData = {
         status:
           message.type === 'end-of-call-report'
@@ -41,7 +54,9 @@ export default async function handler(
               : existingCall.status,
         summary: message.summary || undefined,
         transcript: message.transcript || undefined,
-        recordingUrl: message.recordingUrl || undefined
+        recordingUrl: message.recordingUrl || undefined,
+        transcribed: message.transcript ? true : existingCall.transcribed,
+        ...timestamps
       };
 
       const updatedCall = await prisma.calls.update({

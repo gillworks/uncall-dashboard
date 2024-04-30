@@ -88,21 +88,21 @@ export function CallList({
               | undefined;
             icon: JSX.Element;
           }[] = [];
-          if (item.startedAt && item.endedAt) {
+          if (item.status === 'completed') {
             labels.push({
               text: 'Completed',
               variant: 'outline',
               icon: <Check className="ml-1 h-4 w-4" />
             });
           }
-          if (item.startedAt && !item.endedAt) {
+          if (item.status === 'in-progress') {
             labels.push({
               text: 'In Progress',
               variant: 'default',
               icon: <Ellipsis className="ml-1 h-4 w-4" />
             });
           }
-          if (!item.startedAt) {
+          if (item.status === 'queued') {
             labels.push({
               text: 'Queued',
               variant: 'secondary',

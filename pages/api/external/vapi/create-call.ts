@@ -16,7 +16,7 @@ export default async function handler(
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      maxDurationSeconds: 1800,
+      maxDurationSeconds: 600,
       assistantId: '523cf456-b44d-41f2-82de-c23114e0dda6',
       customer: {
         number: '+14702903741',

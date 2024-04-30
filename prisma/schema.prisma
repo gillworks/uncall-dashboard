@@ -49,7 +49,7 @@ model calls {
   id           Int       @id @default(autoincrement())
   taskId       Int?
   status       String?
-  vapiId       String?
+  vapiId       String?   @unique(map: "unique_vapiid")
   summary      String?
   transcript   String?
   startedAt    DateTime? @db.Timestamptz(6)

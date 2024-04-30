@@ -91,6 +91,21 @@ async function startTask(taskId: string) {
     if (updateResponse.ok) {
       mutate('/api/tasks');
       mutate('/api/unread-calls-count');
+
+      // Create a call in vapi
+      const createCallResponse = await fetch('/api/external/vapi/create-call', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          taskId: taskId
+        })
+      });
+
+      if (!createCallResponse.ok) {
+        console.error('Failed to make the external call');
+      }
     } else {
       console.error('Failed to update the task status to in progress');
     }

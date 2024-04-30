@@ -12,6 +12,9 @@ export default async function handler(
       where: {
         deletedAt: null // Only select tasks where deletedAt is null
       },
+      orderBy: {
+        createdAt: 'desc'
+      },
       include: {
         assistants: {
           select: {

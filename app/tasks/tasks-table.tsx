@@ -78,6 +78,8 @@ async function startTask(taskId: string) {
   });
 
   if (startResponse.ok) {
+    const callData = await startResponse.json();
+
     const updateResponse = await fetch(`/api/edit-task-status/${taskId}`, {
       method: 'PUT',
       headers: {
@@ -99,7 +101,7 @@ async function startTask(taskId: string) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          taskId: taskId
+          callId: callData.id
         })
       });
 

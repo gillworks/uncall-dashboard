@@ -1,9 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const { callId } = req.body;
+
   const options: RequestInit = {
     method: 'POST',
     headers: {
@@ -20,10 +25,23 @@ export default async function handler(
       phoneNumberId: '7cf912a6-025c-412b-95a5-c5edd0020b52'
     })
   };
+
   try {
     const response = await fetch('https://api.vapi.ai/call/phone', options);
     const data = await response.json();
-    console.log('API Call Response:', data); // Log the response from a successful call
+
+    if (response.ok) {
+      // Update the call record in the database with the VAPI call ID using Prisma
+      const updateCall = await prisma.calls.update({
+        where: { id: parseInt(callId) },
+        data: { vapiId: data.id }
+      });
+
+      if (!updateCall) {
+        throw new Error('Failed to update call record with VAPI ID');
+      }
+    }
+
     res.status(200).json(data);
   } catch (error) {
     console.error(error);

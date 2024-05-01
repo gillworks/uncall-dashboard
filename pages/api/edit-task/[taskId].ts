@@ -15,7 +15,14 @@ export default async function handler(
     }
 
     try {
-      const { name, instructions, type, assistantId } = req.body;
+      const {
+        name,
+        instructions,
+        type,
+        assistantId,
+        contactName,
+        contactPhoneNumber
+      } = req.body;
       const updatedTask = await prisma.tasks.update({
         where: {
           id: taskId,
@@ -25,7 +32,9 @@ export default async function handler(
           name,
           instructions,
           type,
-          assistantId: assistantId ? parseInt(assistantId) : null
+          assistantId: assistantId ? parseInt(assistantId) : null,
+          contactName,
+          contactPhoneNumber
         }
       });
       res.status(200).json(updatedTask);

@@ -9,13 +9,22 @@ export default async function handler(
 ) {
   if (req.method === 'POST') {
     try {
-      const { name, instructions, type, assistant } = req.body;
+      const {
+        name,
+        instructions,
+        type,
+        assistant,
+        contactName,
+        contactPhoneNumber
+      } = req.body;
       const task = await prisma.tasks.create({
         data: {
           name,
           instructions,
           type,
-          assistantId: assistant
+          assistantId: assistant,
+          contactName,
+          contactPhoneNumber
         }
       });
       res.status(200).json(task);

@@ -119,6 +119,38 @@ export const TaskFormFields = ({ form, assistants }: TaskFormFieldsProps) => {
           </FormItem>
         )}
       />
+      <FormField
+        control={form.control}
+        name="contactName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Contact Name</FormLabel>
+            <FormControl>
+              <Input {...field} className="col-span-3" />
+            </FormControl>
+            <FormDescription>
+              Name of the contact associated with this task.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="contactPhoneNumber"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Contact Phone Number</FormLabel>
+            <FormControl>
+              <Input {...field} className="col-span-3" />
+            </FormControl>
+            <FormDescription>
+              Phone number of the contact associated with this task.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
 };

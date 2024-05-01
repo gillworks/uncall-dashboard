@@ -108,8 +108,8 @@ export default async function handler(
         serverUrlSecret: process.env.VAPI_SECRET
       },
       customer: {
-        number: '+14702903741',
-        name: 'Courtesy Ford'
+        number: '+1' + task.contactPhoneNumber,
+        name: task.contactName
       },
       phoneNumberId: '7cf912a6-025c-412b-95a5-c5edd0020b52'
     })

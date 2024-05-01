@@ -35,7 +35,9 @@ const formSchema = z.object({
     .string({
       required_error: 'Please select an assistant to perform the task.'
     })
-    .min(1)
+    .min(1),
+  contactName: z.string().max(255).min(2),
+  contactPhoneNumber: z.string().min(10).max(15)
 });
 
 export interface Assistant {
@@ -61,7 +63,9 @@ export function AddTaskDialog() {
       name: '',
       instructions: '',
       type: '',
-      assistant: ''
+      assistant: '',
+      contactName: '',
+      contactPhoneNumber: ''
     }
   });
 
@@ -81,7 +85,9 @@ export function AddTaskDialog() {
         name: values.name,
         instructions: values.instructions,
         type: values.type,
-        assistant: assistantId // Pass the assistantId instead of the assistant name
+        assistant: assistantId,
+        contactName: values.contactName,
+        contactPhoneNumber: values.contactPhoneNumber
       })
     })
       .then((response) => response.json())

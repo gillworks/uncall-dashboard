@@ -42,6 +42,8 @@ model tasks {
   scheduledAt        DateTime?   @db.Timestamptz(6)
   responseGuidelines String?
   maxCallDuration    Int?
+  contactName        String?
+  contactPhoneNumber String?     @db.VarChar(20)
   calls              calls[]
   assistants         assistants? @relation(fields: [assistantId], references: [id], onUpdate: NoAction)
 }

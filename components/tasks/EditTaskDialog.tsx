@@ -28,7 +28,9 @@ const formSchema = z.object({
   type: z.string().min(1, { message: 'Please select a task type.' }),
   assistant: z.string().min(1, {
     message: 'Please select an assistant to perform the task.'
-  })
+  }),
+  contactName: z.string().max(255).min(2),
+  contactPhoneNumber: z.string().min(10).max(15)
 });
 
 export interface Assistant {
@@ -54,7 +56,9 @@ export function EditTaskDialog({
       name: '',
       instructions: '',
       type: '',
-      assistant: ''
+      assistant: '',
+      contactName: '',
+      contactPhoneNumber: ''
     }
   });
 
@@ -72,7 +76,9 @@ export function EditTaskDialog({
         type: taskData.type,
         assistant:
           assistantsData.find((a: Assistant) => a.id === taskData.assistantId)
-            ?.name || ''
+            ?.name || '',
+        contactName: taskData.contactName,
+        contactPhoneNumber: taskData.contactPhoneNumber
       };
       form.reset(resetData);
     } catch (error) {
@@ -101,7 +107,9 @@ export function EditTaskDialog({
         name: values.name,
         instructions: values.instructions,
         type: values.type,
-        assistantId: assistantId
+        assistantId: assistantId,
+        contactName: values.contactName,
+        contactPhoneNumber: values.contactPhoneNumber
       })
     })
       .then((response) => response.json())

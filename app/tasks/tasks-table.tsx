@@ -50,6 +50,8 @@ interface Task {
     name: string;
   };
   createdAt: string;
+  contactName: string;
+  contactPhoneNumber: string;
 }
 
 async function deleteTask(taskId: string) {
@@ -160,6 +162,12 @@ export function TasksTable() {
               <TableHead className="hidden md:table-cell">Type</TableHead>
               <TableHead className="hidden md:table-cell">Assistant</TableHead>
               <TableHead className="hidden md:table-cell">
+                Contact Name
+              </TableHead>
+              <TableHead className="hidden md:table-cell">
+                Contact Phone
+              </TableHead>
+              <TableHead className="hidden md:table-cell">
                 Created Date/Time
               </TableHead>
               <TableHead>
@@ -191,6 +199,12 @@ export function TasksTable() {
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {task.assistants.name}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {task.contactName}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {task.contactPhoneNumber}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {formatDistanceToNow(new Date(task.createdAt), {

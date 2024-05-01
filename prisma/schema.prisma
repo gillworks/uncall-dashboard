@@ -31,18 +31,20 @@ model users {
 }
 
 model tasks {
-  id           Int         @id @default(autoincrement())
-  name         String
-  instructions String
-  assistantId  Int?
-  status       String      @default("draft")
-  createdAt    DateTime    @default(now()) @db.Timestamptz(6)
-  updatedAt    DateTime    @default(now()) @db.Timestamptz(6)
-  deletedAt    DateTime?   @db.Timestamptz(6)
-  type         String?
-  scheduledAt  DateTime?   @db.Timestamptz(6)
-  calls        calls[]
-  assistants   assistants? @relation(fields: [assistantId], references: [id], onUpdate: NoAction)
+  id                 Int         @id @default(autoincrement())
+  name               String
+  instructions       String
+  assistantId        Int?
+  status             String      @default("draft")
+  createdAt          DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime    @default(now()) @db.Timestamptz(6)
+  deletedAt          DateTime?   @db.Timestamptz(6)
+  type               String?
+  scheduledAt        DateTime?   @db.Timestamptz(6)
+  responseGuidelines String?
+  maxCallDuration    Int?
+  calls              calls[]
+  assistants         assistants? @relation(fields: [assistantId], references: [id], onUpdate: NoAction)
 }
 
 model calls {

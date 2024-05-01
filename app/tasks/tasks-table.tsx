@@ -101,6 +101,7 @@ async function startTask(taskId: string) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          taskId: taskId,
           callId: callData.id
         })
       });

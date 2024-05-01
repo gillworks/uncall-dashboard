@@ -7,7 +7,23 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { callId } = req.body;
+  const { taskId, callId } = req.body;
+
+  const task = await prisma.tasks.findUnique({
+    where: { id: parseInt(taskId) }
+  });
+
+  if (!task) {
+    return res.status(404).json({ error: 'Task not found' });
+  }
+
+  const assistant = await prisma.assistants.findUnique({
+    where: { id: task.assistantId ?? undefined }
+  });
+
+  if (!assistant) {
+    return res.status(404).json({ error: 'Assistant not found' });
+  }
 
   const options: RequestInit = {
     method: 'POST',
@@ -16,8 +32,71 @@ export default async function handler(
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      maxDurationSeconds: 600,
-      assistantId: '523cf456-b44d-41f2-82de-c23114e0dda6',
+      maxDurationSeconds: task.maxCallDuration || 600,
+      assistant: {
+        transcriber: {
+          provider: 'deepgram',
+          model: 'nova-2',
+          language: 'en'
+        },
+        model: {
+          messages: [
+            {
+              content: `[Identity]
+              ${assistant.identity}
+
+              [Style]
+              ${assistant.style}
+
+              [Response Guidelines]
+              ${task.responseGuidelines}
+
+              [Task]
+              ${task.instructions}`,
+              role: 'assistant'
+            }
+          ],
+          provider: 'openai',
+          model: 'gpt-4-1106-preview',
+          fallbackModels: ['gpt-4-0125-preview', 'gpt-4-0613'],
+          semanticCachingEnabled: true,
+          temperature: 0.7,
+          maxTokens: 250
+        },
+        voice: assistant.voice,
+        recordingEnabled: true,
+        endCallFunctionEnabled: true,
+        dialKeypadFunctionEnabled: true,
+        hipaaEnabled: false,
+        clientMessages: [
+          'transcript',
+          'hang',
+          'function-call',
+          'speech-update',
+          'metadata',
+          'conversation-update'
+        ],
+        serverMessages: [
+          'end-of-call-report',
+          'status-update',
+          'hang',
+          'function-call'
+        ],
+        silenceTimeoutSeconds: 30,
+        responseDelaySeconds: 0.1,
+        llmRequestDelaySeconds: 0.1,
+        numWordsToInterruptAssistant: 2,
+        maxDurationSeconds: 1800,
+        backgroundSound: 'office',
+        name: assistant.name,
+        firstMessage: 'Hello?',
+        voicemailDetectionEnabled: true,
+        voicemailMessage: '',
+        endCallMessage: 'Goodbye.',
+        metadata: {},
+        serverUrl: process.env.VAPI_SERVER_URL,
+        serverUrlSecret: process.env.VAPI_SECRET
+      },
       customer: {
         number: '+14702903741',
         name: 'Courtesy Ford'

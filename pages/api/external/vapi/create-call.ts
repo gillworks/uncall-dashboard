@@ -25,6 +25,26 @@ export default async function handler(
     return res.status(404).json({ error: 'Assistant not found' });
   }
 
+  const modelMessageContent = `[Identity]
+  ${assistant.identity}
+
+  ${
+    assistant.style
+      ? `[Style]
+  ${assistant.style}`
+      : ''
+  }
+
+  ${
+    task.responseGuidelines
+      ? `[Response Guidelines]
+  ${task.responseGuidelines}`
+      : ''
+  }
+
+  [Task]
+  ${task.instructions}`;
+
   const options: RequestInit = {
     method: 'POST',
     headers: {
@@ -42,17 +62,7 @@ export default async function handler(
         model: {
           messages: [
             {
-              content: `[Identity]
-              ${assistant.identity}
-
-              [Style]
-              ${assistant.style}
-
-              [Response Guidelines]
-              ${task.responseGuidelines}
-
-              [Task]
-              ${task.instructions}`,
+              content: modelMessageContent,
               role: 'assistant'
             }
           ],
@@ -110,14 +120,14 @@ export default async function handler(
     const data = await response.json();
 
     if (response.ok) {
-      // Update the call record in the database with the VAPI call ID using Prisma
+      // Update the call record in the database with the VAPI call ID and the model message content using Prisma
       const updateCall = await prisma.calls.update({
         where: { id: parseInt(callId) },
-        data: { vapiId: data.id }
+        data: { vapiId: data.id, prompt: modelMessageContent }
       });
 
       if (!updateCall) {
-        throw new Error('Failed to update call record with VAPI ID');
+        throw new Error('Failed to update call record with VAPI ID and prompt');
       }
     }
 

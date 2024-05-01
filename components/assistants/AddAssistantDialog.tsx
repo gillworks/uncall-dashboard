@@ -26,7 +26,6 @@ const formSchema = z.object({
   name: z.string().max(255).min(2),
   identity: z.string(),
   style: z.string(),
-  model: z.string().optional(),
   voice: z.string().optional()
 });
 
@@ -40,7 +39,6 @@ export function AddAssistantDialog() {
       name: '',
       identity: '',
       style: '',
-      model: '',
       voice: ''
     }
   });
@@ -56,7 +54,6 @@ export function AddAssistantDialog() {
         name: values.name,
         identity: values.identity,
         style: values.style,
-        model: values.model,
         voice: values.voice
       })
     })

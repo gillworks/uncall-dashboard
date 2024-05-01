@@ -25,7 +25,6 @@ const formSchema = z.object({
   name: z.string().max(255).min(2),
   identity: z.string(),
   style: z.string(),
-  model: z.string().optional(),
   voice: z.string().optional()
 });
 
@@ -45,7 +44,6 @@ export function EditAssistantDialog({
       name: '',
       identity: '',
       style: '',
-      model: '',
       voice: ''
     }
   });
@@ -56,7 +54,6 @@ export function EditAssistantDialog({
       name: '',
       identity: '',
       style: '',
-      model: '',
       voice: ''
     });
     fetch(`/api/assistant/${assistantId}`)
@@ -66,7 +63,6 @@ export function EditAssistantDialog({
           name: data.name,
           identity: data.identity,
           style: data.style,
-          model: data.model ? JSON.stringify(data.model) : '',
           voice: data.voice ? JSON.stringify(data.voice) : ''
         });
       })
@@ -84,7 +80,6 @@ export function EditAssistantDialog({
         name: values.name,
         identity: values.identity,
         style: values.style,
-        model: values.model,
         voice: values.voice
       })
     })

@@ -67,7 +67,6 @@ export function AssistantsTable({ offset }: { offset: number | null }) {
               <TableHead className="max-w-[150px]">Name</TableHead>
               <TableHead className="hidden md:table-cell">Identity</TableHead>
               <TableHead className="hidden md:table-cell">Style</TableHead>
-              <TableHead className="hidden md:table-cell">Model</TableHead>
               <TableHead className="hidden md:table-cell">Voice</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
@@ -116,9 +115,6 @@ function AssistantRow({
       </TableCell>
       <TableCell className="hidden md:table-cell">
         {assistant.style || 'N/A'}
-      </TableCell>
-      <TableCell className="hidden md:table-cell">
-        {assistant.model ? JSON.stringify(assistant.model) : 'N/A'}
       </TableCell>
       <TableCell className="hidden md:table-cell">
         {assistant.voice ? JSON.stringify(assistant.voice) : 'N/A'}

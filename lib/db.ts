@@ -23,7 +23,6 @@ const users = pgTable('users', {
 const assistants = pgTable('assistants', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }),
-  model: jsonb('model'),
   voice: jsonb('voice'),
   identity: varchar('identity', { length: 255 }),
   style: varchar('style')

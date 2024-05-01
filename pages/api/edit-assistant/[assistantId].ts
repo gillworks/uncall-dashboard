@@ -15,7 +15,7 @@ export default async function handler(
     }
 
     try {
-      const { name, identity, style, model, voice } = req.body;
+      const { name, identity, style, voice } = req.body;
       const updatedAssistant = await prisma.assistants.update({
         where: {
           id: assistantId,
@@ -25,7 +25,6 @@ export default async function handler(
           name,
           identity,
           style,
-          model: model ? JSON.parse(model) : null,
           voice: voice ? JSON.parse(voice) : null
         }
       });

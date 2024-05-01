@@ -62,22 +62,6 @@ export const AssistantFormFields = ({ form }: AssistantFormFieldsProps) => (
     />
     <FormField
       control={form.control}
-      name="model"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Model</FormLabel>
-          <FormControl>
-            <Textarea {...field} className="col-span-3" />
-          </FormControl>
-          <FormDescription>
-            JSON data for the assistant's model.
-          </FormDescription>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-    <FormField
-      control={form.control}
       name="voice"
       render={({ field }) => (
         <FormItem>

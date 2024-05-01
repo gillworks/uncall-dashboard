@@ -63,6 +63,7 @@ model calls {
   type         String
   transcribed  Boolean?
   read         Boolean   @default(false)
+  prompt       String?
   tasks        tasks?    @relation(fields: [taskId], references: [id], onUpdate: NoAction)
 }
 

@@ -15,12 +15,17 @@ import {
 import { Form } from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';
 import { useState } from 'react';
-import { mutate } from 'swr';
+import { createClient } from '@supabase/supabase-js';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { AssistantFormFields } from './AssistantFormFields';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const formSchema = z.object({
   name: z.string().max(255).min(2),
@@ -45,32 +50,29 @@ export function AddAssistantDialog() {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    fetch('/api/add-assistant', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: values.name,
-        identity: values.identity,
-        style: values.style,
-        voice: values.voice
-      })
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        toast({
-          description: 'Assistant created successfully!'
-        });
-        form.reset();
-        setIsOpen(false);
-        mutate('/api/assistants', true); // Ensure this matches the SWR key in the AssistantsTable
-      })
-      .catch((error) => {
-        console.error('Failed to create assistant:', error);
-        toast({
-          description: 'Failed to create assistant.'
-        });
+    supabase
+      .from('assistants')
+      .insert([
+        {
+          name: values.name,
+          identity: values.identity,
+          style: values.style,
+          voice: values.voice
+        }
+      ])
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to create assistant:', error.message);
+          toast({
+            description: 'Failed to create assistant.'
+          });
+        } else {
+          toast({
+            description: 'Assistant created successfully!'
+          });
+          form.reset();
+          setIsOpen(false);
+        }
       });
   }
 

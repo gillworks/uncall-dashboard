@@ -16,12 +16,17 @@ import { Form } from '@/components/ui/form';
 
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useEffect } from 'react';
-import { mutate } from 'swr';
 import TaskFormFields from './TaskFormFields';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const formSchema = z.object({
   name: z.string().max(255).min(2),
@@ -50,10 +55,16 @@ export function AddTaskDialog() {
   const [assistants, setAssistants] = useState<Assistant[]>([]);
 
   useEffect(() => {
-    fetch('/api/assistants')
-      .then((response) => response.json())
-      .then((data: Assistant[]) => setAssistants(data))
-      .catch((error) => console.error('Failed to load assistants:', error));
+    supabase
+      .from('assistants')
+      .select('*')
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to load assistants:', error.message);
+        } else {
+          setAssistants(data);
+        }
+      });
   }, []);
 
   // 1. Define your form.
@@ -76,34 +87,31 @@ export function AddTaskDialog() {
       (assistant) => assistant.name === values.assistant
     )?.id;
 
-    fetch('/api/add-task', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: values.name,
-        instructions: values.instructions,
-        type: values.type,
-        assistant: assistantId,
-        contactName: values.contactName,
-        contactPhoneNumber: values.contactPhoneNumber
-      })
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        toast({
-          description: 'Task created successfully!'
-        });
-        form.reset();
-        setIsOpen(false);
-        mutate('/api/tasks', true); // Ensure this matches the SWR key in the TasksTable
-      })
-      .catch((error) => {
-        console.error('Failed to create task:', error);
-        toast({
-          description: 'Failed to create task.'
-        });
+    supabase
+      .from('tasks')
+      .insert([
+        {
+          name: values.name,
+          instructions: values.instructions,
+          type: values.type,
+          assistantId: assistantId,
+          contactName: values.contactName,
+          contactPhoneNumber: values.contactPhoneNumber
+        }
+      ])
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to create task:', error.message);
+          toast({
+            description: 'Failed to create task.'
+          });
+        } else {
+          toast({
+            description: 'Task created successfully!'
+          });
+          form.reset();
+          setIsOpen(false);
+        }
       });
   }
 

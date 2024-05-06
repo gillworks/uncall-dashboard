@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
 import { Input } from '@/components/ui/input';
 import {
@@ -15,8 +16,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { CallDisplay } from '@/components/calls/components/call-display';
 import { CallList } from '@/components/calls/components/call-list';
-import { useCall } from '@/components/calls/use-call';
 import { Call } from '@/types';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface CallProps {
   defaultLayout: number[] | undefined;
@@ -31,13 +36,29 @@ export function Calls({
 }: CallProps) {
   const [calls, setCalls] = useState<Call[]>([]);
   const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
-  const [call] = useCall();
 
   useEffect(() => {
     async function fetchCalls() {
-      const response = await fetch('/api/calls');
-      const data = await response.json();
-      setCalls(data);
+      const { data, error } = await supabase
+        .from('calls')
+        .select(
+          `
+          *,
+          tasks (
+            name,
+            assistants (
+              name
+            )
+          )
+        `
+        )
+        .order('createdAt', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching calls:', error.message);
+      } else {
+        setCalls(data);
+      }
     }
 
     fetchCalls();

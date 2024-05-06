@@ -1,7 +1,6 @@
 'use client';
 
 import { MoreHorizontal } from 'lucide-react';
-import useSWR, { mutate } from 'swr';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,9 +36,13 @@ import {
   DialogDescription,
   DialogClose
 } from '@/components/ui/dialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface Task {
   id: string;
@@ -54,62 +57,56 @@ interface Task {
   contactPhoneNumber: string;
 }
 
+interface CallData {
+  id: string;
+}
+
 async function deleteTask(taskId: string) {
-  const response = await fetch(`/api/delete-task?id=${taskId}`, {
-    method: 'DELETE'
-  });
-  if (response.ok) {
-    // Re-fetch tasks data to update the UI
-    mutate('/api/tasks');
-  } else {
-    console.error('Failed to delete the task');
+  const { error } = await supabase.from('tasks').delete().match({ id: taskId });
+
+  if (error) {
+    console.error('Failed to delete the task:', error.message);
   }
 }
 
 async function startTask(taskId: string) {
-  const startResponse = await fetch('/api/add-call', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
+  const { data: callData, error } = (await supabase
+    .from('calls')
+    .insert({
       taskId: taskId,
       status: 'queued',
       type: 'outbound'
     })
-  });
+    .select()) as { data: CallData[] | null; error: any };
 
-  if (startResponse.ok) {
-    const callData = await startResponse.json();
+  if (!error) {
+    const { error: updateError } = await supabase
+      .from('tasks')
+      .update({ status: 'in progress' })
+      .match({ id: taskId });
 
-    const updateResponse = await fetch(`/api/edit-task-status/${taskId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        status: 'in progress'
-      })
-    });
+    if (!updateError) {
+      if (callData && callData[0] && callData[0].id) {
+        // Create a call in vapi
+        const createCallResponse = await fetch(
+          '/api/external/vapi/create-call',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              taskId: taskId,
+              callId: callData[0].id
+            })
+          }
+        );
 
-    if (updateResponse.ok) {
-      mutate('/api/tasks');
-      mutate('/api/unread-calls-count');
-
-      // Create a call in vapi
-      const createCallResponse = await fetch('/api/external/vapi/create-call', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          taskId: taskId,
-          callId: callData.id
-        })
-      });
-
-      if (!createCallResponse.ok) {
-        console.error('Failed to make the external call');
+        if (!createCallResponse.ok) {
+          console.error('Failed to make the external call');
+        }
+      } else {
+        console.error('No call data available to create external call');
       }
     } else {
       console.error('Failed to update the task status to in progress');
@@ -120,13 +117,59 @@ async function startTask(taskId: string) {
 }
 
 export function TasksTable() {
-  const { data: tasks, error } = useSWR('/api/tasks', fetcher);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
-  if (error) return <div>Failed to load tasks.</div>;
-  if (!tasks) return <div>Loading tasks...</div>;
+  useEffect(() => {
+    const handleChanges = (payload: any) => {
+      fetchTasks();
+    };
+
+    const subscription = supabase
+      .channel('supabase_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks' },
+        handleChanges
+      )
+      .subscribe();
+
+    fetchTasks();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select(
+          `
+          *,
+          assistants (
+            id,
+            name,
+            identity,
+            style,
+            voice
+          )
+        `
+        )
+        .order('createdAt', { ascending: true });
+      if (error) throw error;
+      setTasks(data);
+    } catch (error) {
+      setError('Failed to load');
+    }
+  };
+
+  if (error) return <div>{error}</div>;
+  if (!tasks.length) return <div>Loading...</div>;
 
   const confirmDeleteTask = (taskId: string) => {
     setSelectedTaskId(taskId);

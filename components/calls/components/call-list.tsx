@@ -10,12 +10,17 @@ import {
   PhoneOutgoing,
   PhoneIncoming
 } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Call } from '@/types';
-import { mutate } from 'swr';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface CallListProps {
   callType?: 'inbound' | 'outbound';
@@ -32,44 +37,68 @@ export function CallList({
 
   useEffect(() => {
     async function fetchCalls() {
-      const url = callType ? `/api/calls?type=${callType}` : '/api/calls';
-      const response = await fetch(url);
-      const data = await response.json();
-      setCalls(
-        data.map((call: Call) => ({
-          ...call,
-          taskName: call.tasks.name,
-          assistant: call.tasks.assistants.name
-        }))
-      );
+      let query = supabase
+        .from('calls')
+        .select(
+          `
+          *,
+          tasks (
+            name,
+            assistants (
+              name
+            )
+          )
+        `
+        )
+        .order('createdAt', { ascending: false });
+
+      if (callType) {
+        query = query.eq('type', callType);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching calls:', error.message);
+        return;
+      }
+
+      setCalls(data);
     }
 
     fetchCalls();
+
+    const subscription = supabase
+      .channel('supabase_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'calls' },
+        fetchCalls
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [callType]);
 
   const handleSelectCall = async (id: string) => {
     setSelectedCallId(id);
     const selectedCall = calls.find((call) => call.id === id);
     if (selectedCall && !selectedCall.read) {
-      try {
-        const response = await fetch(`/api/edit-call/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ read: true })
-        });
-        if (response.ok) {
-          setCalls(
-            calls.map((call) =>
-              call.id === id ? { ...call, read: true } : call
-            )
-          );
-          mutate('/api/unread-calls-count');
-        }
-      } catch (error) {
+      const { error } = await supabase
+        .from('calls')
+        .update({ read: true })
+        .match({ id });
+
+      if (error) {
         console.error('Failed to mark call as read', error);
+        return;
       }
+
+      setCalls(
+        calls.map((call) => (call.id === id ? { ...call, read: true } : call))
+      );
     }
   };
 

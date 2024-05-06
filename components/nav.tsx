@@ -9,12 +9,57 @@ import {
   PhoneOutgoingIcon,
   SettingsIcon
 } from '@/components/icons';
-import useSWR from 'swr';
+import { useEffect, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export function Nav() {
-  const { data } = useSWR('/api/unread-calls-count', fetcher);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    supabase
+      .from('calls')
+      .select('id', { count: 'exact', head: true })
+      .eq('read', false)
+      .then(({ error, count }) => {
+        if (error) {
+          console.error('Error fetching unread calls count:', error.message);
+        } else {
+          setUnreadCount(count ?? 0);
+        }
+      });
+
+    const handleChanges = () => {
+      supabase
+        .from('calls')
+        .select('id', { count: 'exact', head: true })
+        .eq('read', false)
+        .then(({ error, count }) => {
+          if (error) {
+            console.error('Error fetching unread calls count:', error.message);
+          } else {
+            setUnreadCount(count ?? 0);
+          }
+        });
+    };
+
+    const subscription = supabase
+      .channel('supabase_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'calls' },
+        handleChanges
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <>
@@ -34,9 +79,9 @@ export function Nav() {
         <PhoneOutgoingIcon className="h-4 w-4" />
         <span className="flex justify-between w-full">
           Calls
-          {data && data.unreadCount > 0 && (
+          {unreadCount > 0 && (
             <Badge className="ml-1" variant="default">
-              {data.unreadCount}
+              {unreadCount}
             </Badge>
           )}
         </span>

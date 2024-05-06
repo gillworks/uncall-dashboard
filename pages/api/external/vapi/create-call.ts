@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+import { createClient } from '@supabase/supabase-js';
 
-const prisma = new PrismaClient();
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default async function handler(
   req: NextApiRequest,
@@ -9,19 +12,25 @@ export default async function handler(
 ) {
   const { taskId, callId } = req.body;
 
-  const task = await prisma.tasks.findUnique({
-    where: { id: parseInt(taskId) }
-  });
+  const { data: task, error: taskError } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('id', parseInt(taskId))
+    .single();
 
-  if (!task) {
+  if (taskError || !task) {
     return res.status(404).json({ error: 'Task not found' });
+  } else {
+    console.log(task);
   }
 
-  const assistant = await prisma.assistants.findUnique({
-    where: { id: task.assistantId ?? undefined }
-  });
+  const { data: assistant, error: assistantError } = await supabase
+    .from('assistants')
+    .select('*')
+    .eq('id', task.assistantId ?? undefined)
+    .single();
 
-  if (!assistant) {
+  if (assistantError || !assistant) {
     return res.status(404).json({ error: 'Assistant not found' });
   }
 
@@ -120,13 +129,13 @@ export default async function handler(
     const data = await response.json();
 
     if (response.ok) {
-      // Update the call record in the database with the VAPI call ID and the model message content using Prisma
-      const updateCall = await prisma.calls.update({
-        where: { id: parseInt(callId) },
-        data: { vapiId: data.id, prompt: modelMessageContent }
-      });
+      // Update the call record in the database with the VAPI call ID and the model message content using Supabase
+      const { error: updateError } = await supabase
+        .from('calls')
+        .update({ vapiId: data.id, prompt: modelMessageContent })
+        .match({ id: parseInt(callId) });
 
-      if (!updateCall) {
+      if (updateError) {
         throw new Error('Failed to update call record with VAPI ID and prompt');
       }
     }

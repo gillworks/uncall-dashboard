@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { UserRoundPlus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -9,18 +8,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useEffect } from 'react';
-import { mutate } from 'swr';
 import TaskFormFields from './TaskFormFields';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const formSchema = z.object({
   name: z.string().max(255).min(2),
@@ -65,10 +68,19 @@ export function EditTaskDialog({
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [assistantsData, taskData] = await Promise.all([
-        fetch('/api/assistants').then((res) => res.json()),
-        fetch(`/api/task/${taskId}`).then((res) => res.json())
-      ]);
+      const { data: assistantsData, error: assistantsError } = await supabase
+        .from('assistants')
+        .select('*');
+      const { data: taskData, error: taskError } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('id', taskId)
+        .single();
+
+      if (assistantsError || taskError) {
+        throw new Error(assistantsError?.message || taskError?.message);
+      }
+
       setAssistants(assistantsData);
       const resetData = {
         name: taskData.name,
@@ -98,12 +110,9 @@ export function EditTaskDialog({
       (assistant) => assistant.name === values.assistant
     )?.id;
 
-    fetch(`/api/edit-task/${taskId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    supabase
+      .from('tasks')
+      .update({
         name: values.name,
         instructions: values.instructions,
         type: values.type,
@@ -111,21 +120,20 @@ export function EditTaskDialog({
         contactName: values.contactName,
         contactPhoneNumber: values.contactPhoneNumber
       })
-    })
-      .then((response) => response.json())
-      .then(() => {
-        toast({
-          description: 'Task updated successfully!'
-        });
-        form.reset();
-        onOpenChange(false);
-        mutate('/api/tasks', true);
-      })
-      .catch((error) => {
-        console.error('Failed to update task:', error);
-        toast({
-          description: 'Failed to update task.'
-        });
+      .match({ id: taskId })
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to update task:', error.message);
+          toast({
+            description: 'Failed to update task.'
+          });
+        } else {
+          toast({
+            description: 'Task updated successfully!'
+          });
+          form.reset();
+          onOpenChange(false);
+        }
       });
   }
 

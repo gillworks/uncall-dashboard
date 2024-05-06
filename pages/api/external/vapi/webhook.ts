@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+import { createClient } from '@supabase/supabase-js';
 
-const prisma = new PrismaClient();
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,10 +21,13 @@ export default async function handler(
 
     try {
       const callId = message.call.id;
-      const existingCall = await prisma.calls.findUnique({
-        where: { vapiId: callId }
-      });
-      if (!existingCall) {
+      const { data: existingCall, error: findError } = await supabase
+        .from('calls')
+        .select('*')
+        .eq('vapiId', callId)
+        .single();
+
+      if (findError || !existingCall) {
         return res.status(404).json({ error: 'Call not found' });
       }
 
@@ -59,20 +65,27 @@ export default async function handler(
         ...timestamps
       };
 
-      const updatedCall = await prisma.calls.update({
-        where: { id: existingCall.id },
-        data: updateData
-      });
+      const { data: updatedCall, error: updateError } = await supabase
+        .from('calls')
+        .update(updateData)
+        .match({ id: existingCall.id });
+
+      if (updateError) {
+        throw new Error('Failed to update call record');
+      }
 
       // Update related task status to 'complete' if the call report is 'end-of-call-report'
-      if (message.type === 'end-of-call-report') {
-        if (existingCall.taskId !== null) {
-          await prisma.tasks.update({
-            where: { id: existingCall.taskId },
-            data: { status: 'complete' }
-          });
-        } else {
-          console.error('Task ID is null, cannot update task status.');
+      if (message.type === 'end-of-call-report' && existingCall.taskId) {
+        const { error: taskUpdateError } = await supabase
+          .from('tasks')
+          .update({ status: 'complete' })
+          .match({ id: existingCall.taskId });
+
+        if (taskUpdateError) {
+          console.error(
+            'Failed to update task status:',
+            taskUpdateError.message
+          );
         }
       }
 

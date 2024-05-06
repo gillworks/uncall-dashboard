@@ -9,47 +9,75 @@ import {
   Table
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { SelectAssistant } from '@/lib/db';
-import useSWR, { mutate } from 'swr';
 import { EditAssistantDialog } from '@/components/assistants/EditAssistantDialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogTitle,
   DialogDescription,
   DialogClose
 } from '@/components/ui/dialog';
+import { createClient } from '@supabase/supabase-js';
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((res) => res.json())
-    .then((data) => {
-      //console.log(data); // Log to see the structure
-      return data;
-    });
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 async function deleteAssistant(assistantId: string) {
-  const response = await fetch(`/api/delete-assistant?id=${assistantId}`, {
-    method: 'DELETE'
-  });
-  if (response.ok) {
-    // Re-fetch assistants data to update the UI
-    mutate('/api/assistants');
-  } else {
-    console.error('Failed to delete the assistant');
+  const { error } = await supabase
+    .from('assistants')
+    .delete()
+    .match({ id: assistantId });
+
+  if (error) {
+    console.error('Failed to delete the assistant:', error.message);
   }
 }
 
 export function AssistantsTable({ offset }: { offset: number | null }) {
-  const { data: assistants, error } = useSWR(`/api/assistants`, fetcher);
-  const [selectedAssistant, setSelectedAssistant] =
-    useState<null | SelectAssistant>(null);
+  const [assistants, setAssistants] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedAssistant, setSelectedAssistant] = useState<null | any>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  if (error) return <div>Failed to load</div>;
-  if (!assistants || !Array.isArray(assistants)) return <div>Loading...</div>;
+  useEffect(() => {
+    const handleChanges = (payload: any) => {
+      fetchAssistants();
+    };
+
+    const subscription = supabase
+      .channel('supabase_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'assistants' },
+        handleChanges
+      )
+      .subscribe();
+
+    fetchAssistants();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const fetchAssistants = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('assistants')
+        .select()
+        .order('createdAt', { ascending: true });
+      if (error) throw error;
+      setAssistants(data);
+    } catch (error) {
+      setError('Failed to load');
+    }
+  };
+
+  if (error) return <div>{error}</div>;
+  if (!assistants.length) return <div>Loading...</div>;
 
   return (
     <>
@@ -72,12 +100,12 @@ export function AssistantsTable({ offset }: { offset: number | null }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {assistants.map((assistant: SelectAssistant) => (
+            {assistants.map((assistant: any) => (
               <AssistantRow
                 key={assistant.id}
                 assistant={assistant}
                 setSelectedAssistant={setSelectedAssistant}
-                setIsOpen={setIsOpen} // Pass setIsOpen to the row
+                setIsOpen={setIsOpen}
               />
             ))}
           </TableBody>
@@ -90,19 +118,18 @@ export function AssistantsTable({ offset }: { offset: number | null }) {
 function AssistantRow({
   assistant,
   setSelectedAssistant,
-  setIsOpen // Pass setIsOpen from the parent component
+  setIsOpen
 }: {
-  assistant: SelectAssistant;
-  setSelectedAssistant: (assistant: SelectAssistant) => void;
-  setIsOpen: (isOpen: boolean) => void; // Add this line
+  assistant: any;
+  setSelectedAssistant: (assistant: any) => void;
+  setIsOpen: (isOpen: boolean) => void;
 }) {
   const assistantId = assistant.id;
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const deleteAssistantWithId = () => setIsConfirmOpen(true);
 
-  // Use setIsOpen from props to control the dialog visibility
-  const handleEditClick = (assistant: SelectAssistant) => {
+  const handleEditClick = (assistant: any) => {
     setSelectedAssistant(assistant);
     setIsOpen(true);
   };

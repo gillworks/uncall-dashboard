@@ -13,13 +13,16 @@ import {
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';
-import { useState } from 'react';
-import { mutate } from 'swr';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { AssistantFormFields } from './AssistantFormFields';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const formSchema = z.object({
   name: z.string().max(255).min(2),
@@ -49,54 +52,50 @@ export function EditAssistantDialog({
   });
 
   useEffect(() => {
-    form.reset({
-      // Reset the form with empty values before fetching new data
-      name: '',
-      identity: '',
-      style: '',
-      voice: ''
-    });
-    fetch(`/api/assistant/${assistantId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        form.reset({
-          name: data.name,
-          identity: data.identity,
-          style: data.style,
-          voice: data.voice ? JSON.stringify(data.voice) : ''
-        });
-      })
-      .catch((error) => console.error('Failed to fetch assistant:', error));
+    form.reset();
+    supabase
+      .from('assistants')
+      .select('*')
+      .eq('id', assistantId)
+      .single()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to fetch assistant:', error.message);
+        } else {
+          form.reset({
+            name: data.name,
+            identity: data.identity,
+            style: data.style,
+            voice: JSON.stringify(data.voice)
+          });
+        }
+      });
   }, [assistantId, form]);
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    fetch(`/api/edit-assistant/${assistantId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    supabase
+      .from('assistants')
+      .update({
         name: values.name,
         identity: values.identity,
         style: values.style,
-        voice: values.voice
+        voice: values.voice ? JSON.parse(values.voice) : null
       })
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        toast({
-          description: 'Assistant updated successfully!'
-        });
-        form.reset();
-        onOpenChange(false);
-        mutate('/api/assistants', true); // Ensure this matches the SWR key in the AssistantsTable
-      })
-      .catch((error) => {
-        console.error('Failed to update assistant:', error);
-        toast({
-          description: 'Failed to update assistant.'
-        });
+      .match({ id: assistantId })
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to update assistant:', error.message);
+          toast({
+            description: 'Failed to update assistant.'
+          });
+        } else {
+          toast({
+            description: 'Assistant updated successfully!'
+          });
+          form.reset();
+          onOpenChange(false);
+        }
       });
   }
 

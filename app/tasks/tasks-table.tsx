@@ -188,7 +188,7 @@ export function TasksTable() {
           <div>
             <CardTitle>Tasks</CardTitle>
             <CardDescription>
-              Manage your tasks and view their status.
+              Create tasks to assign to your virtual assistants.
             </CardDescription>
           </div>
           <div className="ml-auto">

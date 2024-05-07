@@ -107,27 +107,6 @@ export type Database = {
           },
         ]
       }
-      contacts: {
-        Row: {
-          extension: string | null
-          id: number
-          name: string
-          phoneNumber: string
-        }
-        Insert: {
-          extension?: string | null
-          id?: number
-          name: string
-          phoneNumber: string
-        }
-        Update: {
-          extension?: string | null
-          id?: number
-          name?: string
-          phoneNumber?: string
-        }
-        Relationships: []
-      }
       tasks: {
         Row: {
           assistantId: number | null

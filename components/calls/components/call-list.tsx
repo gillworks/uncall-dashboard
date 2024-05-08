@@ -166,7 +166,7 @@ export function CallList({
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
                     <div className="font-semibold">
-                      {item.tasks.assistants.name}
+                      {item.tasks ? item.tasks.assistants.name : 'Deleted Task'}
                     </div>
                     {item.type === 'outbound' ? (
                       <PhoneOutgoing className="ml-1 h-4 w-4" />
@@ -195,7 +195,9 @@ export function CallList({
                 </div>
                 <div className="flex items-center gap-1">
                   <ClipboardCheck className="h-3 w-3 text-muted-foreground" />
-                  <div className="text-xs font-medium">{item.tasks.name}</div>
+                  <div className="text-xs font-medium">
+                    {item.tasks ? item.tasks.name : 'Deleted Task'}
+                  </div>
                 </div>
               </div>
               <div className="line-clamp-2 text-xs text-muted-foreground">

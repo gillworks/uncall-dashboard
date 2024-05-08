@@ -85,7 +85,7 @@ export function CallDisplay({ call }: CallDisplayProps) {
             <div className="flex items-start gap-4 text-sm">
               <div className="grid gap-1">
                 <div className="flex items-center font-semibold">
-                  {call.tasks.assistants.name}
+                  {call.tasks ? call.tasks.assistants.name : 'Deleted Task'}
                   {call.type === 'outbound' ? (
                     <PhoneOutgoing className="ml-1 h-4 w-4" />
                   ) : (
@@ -94,7 +94,7 @@ export function CallDisplay({ call }: CallDisplayProps) {
                 </div>
                 <div className="line-clamp-1 text-xs flex items-center">
                   <ClipboardCheck className="mr-1 h-4 w-4" />
-                  {call.tasks.name}
+                  {call.tasks ? call.tasks.name : 'Deleted Task'}
                 </div>
               </div>
             </div>

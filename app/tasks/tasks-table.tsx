@@ -4,7 +4,6 @@ import { MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AddTaskDialog } from '@/components/tasks/AddTaskDialog';
 import { EditTaskDialog } from '@/components/tasks/EditTaskDialog';
 import {
   Card,
@@ -183,19 +182,6 @@ export function TasksTable() {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex justify-between">
-          <div>
-            <CardTitle>Tasks</CardTitle>
-            <CardDescription>
-              Create tasks to assign to your virtual assistants.
-            </CardDescription>
-          </div>
-          <div className="ml-auto">
-            <AddTaskDialog />
-          </div>
-        </div>
-      </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>

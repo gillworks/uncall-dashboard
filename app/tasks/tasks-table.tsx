@@ -241,7 +241,9 @@ export function TasksTable() {
                     {task.type}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {task.assistants.name}
+                    {task.assistants
+                      ? task.assistants.name
+                      : 'Deleted Assistant'}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {task.contactName}
@@ -269,7 +271,8 @@ export function TasksTable() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         {task.status === 'draft' &&
-                          task.type === 'Outbound Call' && (
+                          task.type === 'Outbound Call' &&
+                          task.assistants !== null && (
                             <DropdownMenuItem
                               onSelect={() => startTask(task.id)}
                             >

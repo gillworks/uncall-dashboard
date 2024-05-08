@@ -85,7 +85,11 @@ export function CallDisplay({ call }: CallDisplayProps) {
             <div className="flex items-start gap-4 text-sm">
               <div className="grid gap-1">
                 <div className="flex items-center font-semibold">
-                  {call.tasks ? call.tasks.assistants.name : 'Deleted Task'}
+                  {call.tasks
+                    ? call.tasks.assistants
+                      ? call.tasks.assistants.name
+                      : 'Deleted Assistant'
+                    : 'Deleted Task'}
                   {call.type === 'outbound' ? (
                     <PhoneOutgoing className="ml-1 h-4 w-4" />
                   ) : (

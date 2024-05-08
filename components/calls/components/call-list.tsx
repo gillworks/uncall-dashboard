@@ -166,7 +166,11 @@ export function CallList({
                 <div className="flex items-center">
                   <div className="flex items-center gap-2">
                     <div className="font-semibold">
-                      {item.tasks ? item.tasks.assistants.name : 'Deleted Task'}
+                      {item.tasks
+                        ? item.tasks.assistants
+                          ? item.tasks.assistants.name
+                          : 'Deleted Assistant'
+                        : 'Deleted Task'}
                     </div>
                     {item.type === 'outbound' ? (
                       <PhoneOutgoing className="ml-1 h-4 w-4" />

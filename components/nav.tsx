@@ -3,12 +3,12 @@
 import { Badge } from '@/components/ui/badge';
 import { NavItem } from '../app/nav-item';
 import {
-  TimelineChartIcon,
-  UsersIcon,
-  TaskIcon,
-  PhoneOutgoingIcon,
-  SettingsIcon
-} from '@/components/icons';
+  SquareKanban,
+  Users,
+  ClipboardCheck,
+  PhoneOutgoing,
+  Settings
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -64,19 +64,19 @@ export function Nav() {
   return (
     <>
       <NavItem href="/">
-        <TimelineChartIcon className="h-4 w-4" />
+        <SquareKanban className="h-5 w-5" />
         Dashboard
       </NavItem>
       <NavItem href="/assistants">
-        <UsersIcon className="h-4 w-4" />
+        <Users className="h-5 w-5" />
         Assistants
       </NavItem>
       <NavItem href="/tasks">
-        <TaskIcon className="h-4 w-4" />
+        <ClipboardCheck className="h-5 w-5" />
         Tasks
       </NavItem>
       <NavItem href="/calls">
-        <PhoneOutgoingIcon className="h-4 w-4" />
+        <PhoneOutgoing className="h-5 w-5" />
         <span className="flex justify-between w-full">
           Calls
           {unreadCount > 0 && (
@@ -87,7 +87,7 @@ export function Nav() {
         </span>
       </NavItem>
       <NavItem href="/settings">
-        <SettingsIcon className="h-4 w-4" />
+        <Settings className="h-5 w-5" />
         Settings
       </NavItem>
     </>

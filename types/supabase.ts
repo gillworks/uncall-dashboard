@@ -107,6 +107,50 @@ export type Database = {
           },
         ]
       }
+      numbers: {
+        Row: {
+          assistantId: number | null
+          createdAt: string
+          id: number
+          name: string | null
+          number: string | null
+          twilioAccountSid: string | null
+          twilioAuthToken: string | null
+          updatedAt: string | null
+          vapiId: string | null
+        }
+        Insert: {
+          assistantId?: number | null
+          createdAt?: string
+          id?: number
+          name?: string | null
+          number?: string | null
+          twilioAccountSid?: string | null
+          twilioAuthToken?: string | null
+          updatedAt?: string | null
+          vapiId?: string | null
+        }
+        Update: {
+          assistantId?: number | null
+          createdAt?: string
+          id?: number
+          name?: string | null
+          number?: string | null
+          twilioAccountSid?: string | null
+          twilioAuthToken?: string | null
+          updatedAt?: string | null
+          vapiId?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "numbers_assistantId_fkey"
+            columns: ["assistantId"]
+            isOneToOne: false
+            referencedRelation: "assistants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           assistantId: number | null

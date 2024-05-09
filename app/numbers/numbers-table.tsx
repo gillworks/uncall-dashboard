@@ -52,7 +52,7 @@ async function deleteNumber(numberId: string) {
 }
 
 export function NumbersTable() {
-  const [numbers, setNumbers] = useState<any[]>([]);
+  const [numbers, setNumbers] = useState<any[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedNumberId, setSelectedNumberId] = useState<string | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -104,7 +104,7 @@ export function NumbersTable() {
   };
 
   if (error) return <div>{error}</div>;
-  if (numbers === undefined) return <div>Loading...</div>;
+  if (numbers === null) return <div>Loading...</div>;
   if (numbers.length === 0)
     return (
       <div className="flex flex-1 items-center justify-center rounded-lg border shadow-sm">

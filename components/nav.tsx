@@ -5,6 +5,7 @@ import { NavItem } from '../app/nav-item';
 import {
   SquareKanban,
   Users,
+  Hash,
   ClipboardCheck,
   PhoneOutgoing,
   Settings
@@ -70,6 +71,10 @@ export function Nav() {
       <NavItem href="/assistants">
         <Users className="h-5 w-5" />
         Assistants
+      </NavItem>
+      <NavItem href="/numbers">
+        <Hash className="h-5 w-5" />
+        Numbers
       </NavItem>
       <NavItem href="/tasks">
         <ClipboardCheck className="h-5 w-5" />

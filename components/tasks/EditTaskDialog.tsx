@@ -14,6 +14,7 @@ import { Form } from '@/components/ui/form';
 import { useToast } from '@/components/ui/use-toast';
 import { useState, useEffect } from 'react';
 import TaskFormFields from './TaskFormFields';
+import { Assistant } from 'types';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -35,11 +36,6 @@ const formSchema = z.object({
   contactName: z.string().max(255).min(2),
   contactPhoneNumber: z.string().min(10).max(15)
 });
-
-export interface Assistant {
-  id: string;
-  name: string;
-}
 
 export function EditTaskDialog({
   taskId,

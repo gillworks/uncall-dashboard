@@ -37,7 +37,7 @@ async function deleteAssistant(assistantId: string) {
 }
 
 export function AssistantsTable({ offset }: { offset: number | null }) {
-  const [assistants, setAssistants] = useState<any[]>([]);
+  const [assistants, setAssistants] = useState<any[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedAssistant, setSelectedAssistant] = useState<null | any>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -77,7 +77,20 @@ export function AssistantsTable({ offset }: { offset: number | null }) {
   };
 
   if (error) return <div>{error}</div>;
-  if (!assistants.length) return <div>Loading...</div>;
+  if (assistants === null) return <div>Loading...</div>;
+  if (assistants.length === 0)
+    return (
+      <div className="flex flex-1 items-center justify-center rounded-lg border shadow-sm">
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h3 className="text-2xl font-bold tracking-tight">
+            You have no assistants
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Add an assistant to get started
+          </p>
+        </div>
+      </div>
+    );
 
   return (
     <>

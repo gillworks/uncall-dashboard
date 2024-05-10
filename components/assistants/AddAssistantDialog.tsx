@@ -57,7 +57,7 @@ export function AddAssistantDialog() {
           name: values.name,
           identity: values.identity,
           style: values.style,
-          voice: values.voice
+          voice: values.voice ? JSON.parse(values.voice) : null
         }
       ])
       .then(({ data, error }) => {

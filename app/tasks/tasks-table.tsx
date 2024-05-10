@@ -109,7 +109,7 @@ async function startTask(taskId: string) {
 }
 
 export function TasksTable() {
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -161,7 +161,20 @@ export function TasksTable() {
   };
 
   if (error) return <div>{error}</div>;
-  if (!tasks.length) return <div>Loading...</div>;
+  if (tasks === null) return <div>Loading...</div>;
+  if (tasks.length === 0)
+    return (
+      <div className="flex flex-1 items-center justify-center rounded-lg border shadow-sm">
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h3 className="text-2xl font-bold tracking-tight">
+            You have no tasks
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Add a task to get started
+          </p>
+        </div>
+      </div>
+    );
 
   const confirmDeleteTask = (taskId: string) => {
     setSelectedTaskId(taskId);

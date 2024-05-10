@@ -164,7 +164,7 @@ export function NumbersTable() {
                     {number.twilioAccountSid}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {number.twilioAuthToken}
+                    {'•'.repeat(number.twilioAuthToken.length)}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {number.assistants

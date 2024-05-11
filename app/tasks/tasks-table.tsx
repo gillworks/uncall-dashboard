@@ -262,7 +262,7 @@ export function TasksTable() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        {task.status === 'draft' &&
+                        {task.status === 'ready' &&
                           task.type === 'Outbound Call' &&
                           task.assistants !== null && (
                             <DropdownMenuItem
